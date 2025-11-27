@@ -6,11 +6,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 
+
 export default function CartPage() {
   const { items, remove, total, clear } = useCart()
   const router = useRouter()
   const [removingId, setRemovingId] = useState(null)
   const [loading, setLoading] = useState(false)
+
 
   const handleRemove = (id) => {
     setRemovingId(id)
@@ -20,8 +22,10 @@ export default function CartPage() {
     }, 300)
   }
 
+
   const handleCheckout = async () => {
     setLoading(true)
+
 
     try {
       const response = await fetch('/api/checkout', {
@@ -35,12 +39,15 @@ export default function CartPage() {
         }),
       })
 
+
       if (!response.ok) {
         throw new Error('Error al crear preferencia de pago')
       }
 
+
       const data = await response.json()
-      window.location.href = data.sandbox_init_point || data.init_point
+      window.location.href = data.init_point || data.sandbox_init_point  // ✅ ÚNICO CAMBIO: invertido el orden
+
 
     } catch (error) {
       console.error('Error en checkout:', error)
@@ -48,6 +55,7 @@ export default function CartPage() {
       setLoading(false)
     }
   }
+
 
   return (
     <div className="bg-black min-h-screen pt-24 pb-16 relative overflow-hidden">
@@ -58,8 +66,10 @@ export default function CartPage() {
         backgroundSize: '60px 60px'
       }} />
 
+
       <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl" />
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl" />
+
 
       <div className="container mx-auto px-6 max-w-6xl relative z-10">
         
@@ -76,6 +86,7 @@ export default function CartPage() {
                 CART
               </span>
             </h1>
+
 
             {items.length > 0 && (
               <motion.div
@@ -94,6 +105,7 @@ export default function CartPage() {
             )}
           </div>
 
+
           <div className="flex items-center gap-3">
             <div className="w-16 h-[2px] bg-purple-500" />
             <p className="text-white/50 text-sm">
@@ -101,6 +113,7 @@ export default function CartPage() {
             </p>
           </div>
         </motion.div>
+
 
         {items.length === 0 ? (
           // Empty State
@@ -112,6 +125,7 @@ export default function CartPage() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[300px] font-black text-purple-500/5 pointer-events-none select-none">
               0
             </div>
+
 
             <motion.div
               className="relative z-10"
@@ -127,12 +141,14 @@ export default function CartPage() {
               <div className="text-9xl mb-6">🛒</div>
             </motion.div>
 
+
             <h2 className="text-4xl font-black text-white mb-4 tracking-tight">
               NADA POR AQUÍ
             </h2>
             <p className="text-white/50 text-lg mb-8 max-w-md mx-auto">
               Agrega algunos productos brutales y comienza tu drop
             </p>
+
 
             <div className="flex gap-4 justify-center flex-wrap">
               <Link href="/tienda">
@@ -145,6 +161,7 @@ export default function CartPage() {
                   <span className="relative z-10">EXPLORAR TIENDA</span>
                 </motion.button>
               </Link>
+
 
               <Link href="/colecciones">
                 <motion.button 
@@ -180,6 +197,7 @@ export default function CartPage() {
                     {index + 1}
                   </div>
 
+
                   <div className="flex gap-6 relative z-10">
                     <div className="relative w-32 h-32 bg-zinc-900 overflow-hidden flex-shrink-0 border-2 border-white/10 group-hover:border-purple-500/30 transition-all">
                       <Image
@@ -194,6 +212,7 @@ export default function CartPage() {
                       </div>
                     </div>
 
+
                     <div className="flex-1">
                       <h3 className="text-white font-black text-2xl mb-2 leading-tight">
                         {it.product.title}
@@ -202,11 +221,13 @@ export default function CartPage() {
                         {it.product.description}
                       </p>
 
+
                       {it.product.selectedSize && (
                         <div className="inline-block px-3 py-1 border border-white/20 text-white/60 text-xs mb-3">
                           TALLA: {it.product.selectedSize}
                         </div>
                       )}
+
 
                       <div className="flex items-center gap-4">
                         <div className="text-purple-400 font-bold text-lg">
@@ -222,6 +243,7 @@ export default function CartPage() {
                       </div>
                     </div>
 
+
                     <motion.button
                       onClick={() => handleRemove(it.product.id)}
                       className="w-12 h-12 flex items-center justify-center border-2 border-white/10 hover:border-red-500 hover:bg-red-500 transition-all text-white/50 hover:text-white"
@@ -234,9 +256,11 @@ export default function CartPage() {
                     </motion.button>
                   </div>
 
+
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
                 </motion.div>
               ))}
+
 
               <motion.button
                 onClick={clear}
@@ -248,6 +272,7 @@ export default function CartPage() {
               </motion.button>
             </div>
 
+
             {/* Summary Sidebar */}
             <div className="lg:col-span-1">
               <motion.div
@@ -258,11 +283,13 @@ export default function CartPage() {
               >
                 <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl" />
 
+
                 <div className="relative z-10">
                   <h3 className="text-white font-black text-2xl mb-6 tracking-wider flex items-center gap-3">
                     <span>RESUMEN</span>
                     <div className="flex-1 h-[2px] bg-gradient-to-r from-purple-500 to-transparent" />
                   </h3>
+
 
                   <div className="space-y-4 mb-6">
                     <div className="flex justify-between text-white/50 text-sm">
@@ -275,6 +302,7 @@ export default function CartPage() {
                     </div>
                     
                     <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
+
 
                     <motion.div 
                       className="flex justify-between items-center p-4 bg-purple-600/10 border-2 border-purple-500/30"
@@ -289,7 +317,7 @@ export default function CartPage() {
                     </motion.div>
                   </div>
 
-                  {/* BOTÓN OPTIMIZADO - Sin spinner SVG complejo */}
+
                   <motion.button
                     onClick={handleCheckout}
                     disabled={loading}
@@ -303,11 +331,13 @@ export default function CartPage() {
                     </span>
                   </motion.button>
 
+
                   <Link href="/tienda">
                     <button className="w-full py-4 border-2 border-white/20 hover:border-purple-500 hover:bg-purple-500/10 text-white text-sm font-bold tracking-wider transition-all">
                       SEGUIR COMPRANDO
                     </button>
                   </Link>
+
 
                   <div className="mt-8 pt-8 border-t-2 border-white/10 space-y-3">
                     {[
