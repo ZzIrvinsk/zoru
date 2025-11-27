@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useCart } from '../../components/CartContext'
+import { useCart } from '@/components/CartContext'
 
 export default function TiendaPage() {
   const router = useRouter()

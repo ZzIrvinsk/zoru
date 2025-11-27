@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import { useCart } from '../../../components/CartContext'
+import { useCart } from '@/components/CartContext'
 
 export default function ProductPage() {
   const params = useParams()
