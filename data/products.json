@@ -1,0 +1,59 @@
+[
+  {
+    "id": "1",
+    "title": "Hoodie Zoru - Black",
+    "slug": "hoodie-zoru-black",
+    "description": "Hoodie premium, tela gruesa y diseño exclusivo.",
+    "price": 79.99,
+    "image": "/img/product-1.jpg",
+    "stock": 10,
+    "colors": [
+      "black",
+      "white"
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L"
+    ],
+    "sku": "ZORU-1"
+  },
+  {
+    "id": "2",
+    "title": "Camiseta Zoru - White",
+    "slug": "camiseta-zoru-white",
+    "description": "Camiseta 100% algodón con estampado minimal.",
+    "price": 29.99,
+    "image": "/img/product-2.jpg",
+    "stock": 0,
+    "colors": [
+      "black",
+      "white"
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L"
+    ],
+    "sku": "ZORU-2"
+  },
+  {
+    "id": "3",
+    "title": "Chaqueta Zoru - Navy",
+    "slug": "chaqueta-zoru-navy",
+    "description": "Chaqueta ligera con acabado resistente al agua.",
+    "price": 129.99,
+    "image": "/img/product-3.jpg",
+    "stock": 10,
+    "colors": [
+      "black",
+      "white"
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L"
+    ],
+    "sku": "ZORU-3"
+  }
+]
