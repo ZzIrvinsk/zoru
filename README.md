@@ -48,3 +48,4 @@ This branch includes enhanced components: CartContext, CartDrawer, Hero improvem
 - Points system (localStorage) with simulated checkout earning
 - Raffle system (localStorage) at /raffle
 - Breadcrumbs with micro-animations
+# 
