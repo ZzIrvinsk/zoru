@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server'
-import mercadopago from 'mercadopago'
 
 export async function POST(request) {
   try {
-    // Configurar Mercado Pago
+    // Import con require para SDK viejo
+    const mercadopago = require('mercadopago')
+    
     mercadopago.configure({
       access_token: process.env.MERCADOPAGO_ACCESS_TOKEN
     })
 
     const { items, customerEmail } = await request.json()
 
-    // Validar que haya items
     if (!items || items.length === 0) {
       return NextResponse.json(
         { error: 'No hay productos en el carrito' },
@@ -18,7 +18,6 @@ export async function POST(request) {
       )
     }
 
-    // Crear preferencia de pago
     const preference = {
       items: items.map(item => ({
         id: String(item.product.id),
@@ -42,7 +41,6 @@ export async function POST(request) {
       },
       
       auto_return: 'approved',
-      
       statement_descriptor: 'ZORU',
       external_reference: `ZORU-${Date.now()}`
     }
@@ -51,17 +49,13 @@ export async function POST(request) {
 
     return NextResponse.json({
       id: response.body.id,
-      init_point: response.body.init_point,
-      sandbox_init_point: response.body.sandbox_init_point
+      init_point: response.body.init_point
     })
 
   } catch (error) {
-    console.error('❌ Error en checkout:', error)
+    console.error('❌ Error checkout:', error)
     return NextResponse.json(
-      { 
-        error: 'Error al crear preferencia de pago', 
-        details: error.message 
-      },
+      { error: error.message },
       { status: 500 }
     )
   }
