@@ -2,9 +2,6 @@ import { NextResponse } from 'next/server'
 
 export async function POST(request) {
   try {
-    console.log('🔑 Token exists:', !!process.env.MERCADOPAGO_ACCESS_TOKEN)
-    console.log('🌐 URL:', process.env.NEXT_PUBLIC_URL)
-
     const { items, customerEmail } = await request.json()
 
     if (!items || items.length === 0) {
@@ -41,8 +38,6 @@ export async function POST(request) {
       external_reference: `ZORU-${Date.now()}`
     }
 
-    console.log('📦 Preference:', JSON.stringify(preference, null, 2))
-
     const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
       headers: {
@@ -52,19 +47,13 @@ export async function POST(request) {
       body: JSON.stringify(preference)
     })
 
-    console.log('📡 MP Response status:', response.status)
-
     if (!response.ok) {
       const error = await response.json()
-      console.error('❌ MP Error:', error)
-      return NextResponse.json(
-        { error: 'Error de Mercado Pago', details: error },
-        { status: 500 }
-      )
+      console.error('Error de MP:', error)
+      throw new Error(`Mercado Pago error: ${response.status}`)
     }
 
     const data = await response.json()
-    console.log('✅ MP Success:', data)
 
     return NextResponse.json({
       id: data.id,
@@ -73,12 +62,11 @@ export async function POST(request) {
     })
 
   } catch (error) {
-    console.error('❌ Error general:', error)
+    console.error('❌ Error en checkout:', error)
     return NextResponse.json(
       { 
         error: 'Error al crear preferencia de pago',
-        details: error.message,
-        stack: error.stack
+        details: error.message 
       },
       { status: 500 }
     )
