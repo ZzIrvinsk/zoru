@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server'
-// ✅ Import dinámico, no se ejecuta en build time
-const mercadopago = require('mercadopago')
+import mercadopago from 'mercadopago'
 
 export async function POST(request) {
   try {
-    // ✅ Configurar DENTRO de la función, no fuera
+    // Configurar Mercado Pago
     mercadopago.configure({
-      access_token: process.env.MERCADOPAGO_ACCESS_TOKEN || ''
+      access_token: process.env.MERCADOPAGO_ACCESS_TOKEN
     })
 
     const { items, customerEmail } = await request.json()
@@ -37,16 +36,15 @@ export async function POST(request) {
       },
 
       back_urls: {
-        success: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/checkout/success`,
-        failure: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/checkout/failure`,
-        pending: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/checkout/pending`
+        success: `${process.env.NEXT_PUBLIC_URL}/checkout/success`,
+        failure: `${process.env.NEXT_PUBLIC_URL}/checkout/failure`,
+        pending: `${process.env.NEXT_PUBLIC_URL}/checkout/pending`
       },
       
       auto_return: 'approved',
       
       payment_methods: {
-        installments: 1,
-        excluded_payment_types: []
+        installments: 1
       },
 
       notification_url: `${process.env.NEXT_PUBLIC_URL}/api/webhook/mercadopago`,
