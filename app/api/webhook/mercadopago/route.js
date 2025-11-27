@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server'
-import mercadopago from 'mercadopago'
-
-mercadopago.configure({
-  access_token: process.env.MERCADOPAGO_ACCESS_TOKEN
-})
+// ✅ Cambio: usar require en vez de import
+const mercadopago = require('mercadopago')
 
 export async function POST(request) {
   try {
+    // ✅ Cambio: mover la configuración DENTRO de la función
+    mercadopago.configure({
+      access_token: process.env.MERCADOPAGO_ACCESS_TOKEN || ''
+    })
+
     const body = await request.json()
     
     console.log('Webhook recibido:', body)
