@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 // ✅ Cambio: usar require en vez de import
-const mercadopago = require('mercadopago')
+import mercadopago from 'mercadopago'
 
 export async function POST(request) {
   try {
