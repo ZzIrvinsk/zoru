@@ -10,31 +10,25 @@ export async function POST(request) {
     if (body.type === 'payment') {
       const paymentId = body.data.id
 
-      // Obtener detalles del pago usando fetch
+      // Obtener detalles del pago usando fetch directo
       const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`
+          'Authorization': `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json'
         }
       })
 
-      if (response.ok) {
-        const payment = await response.json()
-        
-        console.log('Detalles del pago:', {
-          id: payment.id,
-          status: payment.status,
-          status_detail: payment.status_detail,
-          transaction_amount: payment.transaction_amount,
-          payer_email: payment.payer.email,
-          external_reference: payment.external_reference
-        })
+      const payment = await response.json()
 
-        if (payment.status === 'approved') {
-          console.log('✅ PAGO APROBADO:', paymentId)
-          
-          // TODO: Guardar en base de datos
-          // TODO: Enviar email de confirmación
-        }
+      console.log('Estado del pago:', payment.status)
+      console.log('ID de pago:', payment.id)
+      console.log('Monto:', payment.transaction_amount)
+
+      // Aquí puedes actualizar tu base de datos según el estado
+      if (payment.status === 'approved') {
+        // TODO: Actualizar orden en tu base de datos
+        console.log('✅ Pago aprobado')
       }
     }
 
