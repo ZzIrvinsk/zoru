@@ -1,29 +1,40 @@
 import { NextResponse } from 'next/server'
-import mercadopago from 'mercadopago'
 
 export async function POST(request) {
   try {
-    mercadopago.configure({
-      access_token: process.env.MERCADOPAGO_ACCESS_TOKEN
-    })
-
     const body = await request.json()
     
     console.log('Webhook recibido:', body)
 
+    // Filtrar solo notificaciones de pago
     if (body.type === 'payment') {
       const paymentId = body.data.id
-      const payment = await mercadopago.payment.get(paymentId)
-      
-      console.log('Detalles del pago:', {
-        id: payment.body.id,
-        status: payment.body.status,
-        transaction_amount: payment.body.transaction_amount,
-        payer_email: payment.body.payer.email
+
+      // Obtener detalles del pago usando fetch
+      const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`
+        }
       })
 
-      if (payment.body.status === 'approved') {
-        console.log('✅ PAGO APROBADO:', paymentId)
+      if (response.ok) {
+        const payment = await response.json()
+        
+        console.log('Detalles del pago:', {
+          id: payment.id,
+          status: payment.status,
+          status_detail: payment.status_detail,
+          transaction_amount: payment.transaction_amount,
+          payer_email: payment.payer.email,
+          external_reference: payment.external_reference
+        })
+
+        if (payment.status === 'approved') {
+          console.log('✅ PAGO APROBADO:', paymentId)
+          
+          // TODO: Guardar en base de datos
+          // TODO: Enviar email de confirmación
+        }
       }
     }
 
