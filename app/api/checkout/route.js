@@ -21,39 +21,30 @@ export async function POST(request) {
     // Crear preferencia de pago
     const preference = {
       items: items.map(item => ({
-        id: item.product.id,
+        id: String(item.product.id),
         title: item.product.title,
-        description: item.product.description || '',
+        description: item.product.description || 'Producto ZORU',
         picture_url: item.product.image,
         category_id: 'fashion',
-        quantity: item.qty,
+        quantity: Number(item.qty),
         unit_price: Number(item.product.price),
         currency_id: 'PEN'
       })),
       
       payer: {
-        email: customerEmail || 'customer@zoru.pe',
+        email: customerEmail || 'customer@zoru.pe'
       },
 
       back_urls: {
         success: `${process.env.NEXT_PUBLIC_URL}/checkout/success`,
-        failure: `${process.env.NEXT_PUBLIC_URL}/checkout/failure`,
-        pending: `${process.env.NEXT_PUBLIC_URL}/checkout/pending`
+        failure: `${process.env.NEXT_PUBLIC_URL}/cart`,
+        pending: `${process.env.NEXT_PUBLIC_URL}/cart`
       },
       
       auto_return: 'approved',
       
-      payment_methods: {
-        installments: 1
-      },
-
-      notification_url: `${process.env.NEXT_PUBLIC_URL}/api/webhook/mercadopago`,
       statement_descriptor: 'ZORU',
-      external_reference: `ZORU-${Date.now()}`,
-      
-      expires: true,
-      expiration_date_from: new Date().toISOString(),
-      expiration_date_to: new Date(Date.now() + 30 * 60 * 1000).toISOString()
+      external_reference: `ZORU-${Date.now()}`
     }
 
     const response = await mercadopago.preferences.create(preference)
@@ -65,9 +56,12 @@ export async function POST(request) {
     })
 
   } catch (error) {
-    console.error('Error en checkout:', error)
+    console.error('❌ Error en checkout:', error)
     return NextResponse.json(
-      { error: 'Error al crear preferencia de pago', details: error.message },
+      { 
+        error: 'Error al crear preferencia de pago', 
+        details: error.message 
+      },
       { status: 500 }
     )
   }
