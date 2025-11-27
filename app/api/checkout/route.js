@@ -2,13 +2,6 @@ import { NextResponse } from 'next/server'
 
 export async function POST(request) {
   try {
-    // Import con require para SDK viejo
-    const mercadopago = require('mercadopago')
-    
-    mercadopago.configure({
-      access_token: process.env.MERCADOPAGO_ACCESS_TOKEN
-    })
-
     const { items, customerEmail } = await request.json()
 
     if (!items || items.length === 0) {
@@ -18,6 +11,7 @@ export async function POST(request) {
       )
     }
 
+    // Crear preferencia usando API REST directa
     const preference = {
       items: items.map(item => ({
         id: String(item.product.id),
@@ -45,17 +39,37 @@ export async function POST(request) {
       external_reference: `ZORU-${Date.now()}`
     }
 
-    const response = await mercadopago.preferences.create(preference)
+    // Llamar a la API de Mercado Pago directamente
+    const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`
+      },
+      body: JSON.stringify(preference)
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      console.error('Error de MP:', error)
+      throw new Error(`Mercado Pago error: ${response.status}`)
+    }
+
+    const data = await response.json()
 
     return NextResponse.json({
-      id: response.body.id,
-      init_point: response.body.init_point
+      id: data.id,
+      init_point: data.init_point,
+      sandbox_init_point: data.sandbox_init_point
     })
 
   } catch (error) {
-    console.error('❌ Error checkout:', error)
+    console.error('❌ Error en checkout:', error)
     return NextResponse.json(
-      { error: error.message },
+      { 
+        error: 'Error al crear preferencia de pago',
+        details: error.message 
+      },
       { status: 500 }
     )
   }
