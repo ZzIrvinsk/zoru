@@ -1,52 +1,58 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCart } from '@/components/CartContext'
+import { formatPrice } from '@/lib/currency'
 
 export default function TiendaPage() {
   const router = useRouter()
-  const { add } = useCart() // ← CAMBIO: era addToCart, ahora es add
+  const { add } = useCart()
+  const prefersReducedMotion = useReducedMotion()
   
   const [products, setProducts] = useState([])
-  const [filteredProducts, setFilteredProducts] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [sortBy, setSortBy] = useState('newest')
   const [searchTerm, setSearchTerm] = useState('')
   const [flyingItem, setFlyingItem] = useState(null)
+  const [viewMode, setViewMode] = useState('grid') // grid | list
+
+  const heroRef = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  })
+  
+  const y = useTransform(scrollYProgress, [0, 1], [0, 100])
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
 
   // Cargar productos
   useEffect(() => {
     fetch('/api/products')
       .then(res => res.json())
-      .then(data => {
-        setProducts(data)
-        setFilteredProducts(data)
-      })
-      .catch(err => console.log(err))
+      .then(data => setProducts(data))
+      .catch(err => console.error(err))
   }, [])
 
-  // Filtrar y ordenar
-  useEffect(() => {
+  // Filtrar productos
+  const filteredProducts = useMemo(() => {
     let result = [...products]
 
-    // Filtro por categoría
     if (selectedCategory !== 'all') {
       result = result.filter(p => 
         p.title.toLowerCase().includes(selectedCategory.toLowerCase())
       )
     }
 
-    // Filtro por búsqueda
     if (searchTerm) {
+      const term = searchTerm.toLowerCase()
       result = result.filter(p =>
-        p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.description.toLowerCase().includes(searchTerm.toLowerCase())
+        p.title.toLowerCase().includes(term) ||
+        p.description.toLowerCase().includes(term)
       )
     }
 
-    // Ordenar
     switch(sortBy) {
       case 'price-low':
         result.sort((a, b) => a.price - b.price)
@@ -57,103 +63,246 @@ export default function TiendaPage() {
       case 'name':
         result.sort((a, b) => a.title.localeCompare(b.title))
         break
-      default: // newest
+      default:
         break
     }
 
-    setFilteredProducts(result)
+    return result
   }, [products, selectedCategory, sortBy, searchTerm])
 
+  // Stats
+  const stats = useMemo(() => ({
+    total: products.length,
+    inStock: products.filter(p => p.stock > 0).length,
+    lowStock: products.filter(p => p.stock > 0 && p.stock < 5).length,
+    soldOut: products.filter(p => p.stock === 0).length
+  }), [products])
+
   const categories = [
-    { id: 'all', label: 'TODO' },
-    { id: 'hoodie', label: 'HOODIES' },
-    { id: 'tee', label: 'TEES' },
-    { id: 'pant', label: 'PANTS' },
-    { id: 'accessory', label: 'ACCESORIOS' },
+    { id: 'all', label: 'TODO', icon: '🔥' },
+    { id: 'hoodie', label: 'HOODIES', icon: '👕' },
+    { id: 'tee', label: 'TEES', icon: '👔' },
+    { id: 'pant', label: 'PANTS', icon: '👖' },
+    { id: 'accessory', label: 'ACCESORIOS', icon: '🎒' },
   ]
 
-  // Función para manejar el "fly to cart"
-  const handleFlyToCart = (product, startPosition) => {
+  const handleFlyToCart = useCallback((product, startPosition) => {
     setFlyingItem({
       product,
       startX: startPosition.x,
       startY: startPosition.y
     })
 
-    // Agregar al carrito
     add(product, 1)
 
-    // Limpiar animación después de completarse
     setTimeout(() => {
       setFlyingItem(null)
     }, 800)
-  }
+  }, [add])
+
+  const resetFilters = useCallback(() => {
+    setSearchTerm('')
+    setSelectedCategory('all')
+  }, [])
 
   return (
-    <div className="bg-black min-h-screen pt-24 pb-16">
+    <div className="bg-black min-h-screen overflow-x-hidden">
       
-      {/* HEADER CON FILTROS */}
-      <section className="px-6 mb-12">
-        <div className="container mx-auto max-w-7xl">
+      {/* ✅ HERO ÉPICO */}
+      <section 
+        ref={heroRef}
+        className="relative min-h-[60vh] md:min-h-[70vh] flex items-center justify-center px-4 md:px-6 pt-32 pb-16 overflow-hidden"
+      >
+        {/* Partículas flotantes */}
+        {!prefersReducedMotion && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {[...Array(15)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-1 bg-purple-500/30 rounded-full"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                }}
+                animate={{
+                  y: [0, -30, 0],
+                  opacity: [0.2, 0.5, 0.2],
+                }}
+                transition={{
+                  duration: 3 + Math.random() * 2,
+                  repeat: Infinity,
+                  delay: Math.random() * 2,
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Grid animado */}
+        <motion.div 
+          className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+          style={{
+            backgroundImage: 'linear-gradient(#8B5CF6 1px, transparent 1px), linear-gradient(90deg, #8B5CF6 1px, transparent 1px)',
+            backgroundSize: '60px 60px',
+            y: prefersReducedMotion ? 0 : y,
+          }} 
+        />
+
+        {/* Glows */}
+        {!prefersReducedMotion && (
+          <>
+            <motion.div 
+              className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.5, 0.3],
+              }}
+              transition={{ duration: 4, repeat: Infinity }}
+            />
+            <motion.div 
+              className="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-600/20 rounded-full blur-3xl"
+              animate={{
+                scale: [1, 1.3, 1],
+                opacity: [0.3, 0.5, 0.3],
+              }}
+              transition={{ duration: 5, repeat: Infinity, delay: 1 }}
+            />
+          </>
+        )}
+
+        {/* Contenido Hero */}
+        <motion.div 
+          className="relative z-10 text-center max-w-5xl mx-auto"
+          style={{ opacity: prefersReducedMotion ? 1 : opacity }}
+        >
           
-          {/* Título y contador */}
+          {/* Badge */}
           <motion.div
-            className="mb-8"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-3 px-6 py-3 bg-purple-600/20 border-2 border-purple-500/50 text-purple-400 text-sm font-black tracking-[0.3em] mb-8"
+            initial={prefersReducedMotion ? false : { opacity: 0, y: -30 }}
+            animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            <h1 className="text-6xl md:text-8xl font-black text-white mb-3 tracking-tighter">
-              SHOP
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 -mt-2">
-                ALL
-              </span>
-            </h1>
-            
-            <div className="flex items-center gap-3 text-white/50 text-sm">
-              <span className="text-purple-400 font-bold">{filteredProducts.length}</span>
-              {filteredProducts.length === 1 ? 'producto' : 'productos'} disponibles
-              <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
-            </div>
+            <motion.div 
+              className="w-3 h-3 bg-purple-400 rounded-full"
+              animate={prefersReducedMotion ? {} : {
+                scale: [1, 1.5, 1],
+                opacity: [1, 0.5, 1],
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            SHOP EXCLUSIVO
           </motion.div>
 
-          {/* Filtros Row */}
-          <motion.div
-            className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+          {/* Título GIGANTE */}
+          <div className="relative mb-8">
+            <motion.h1
+              className="text-6xl sm:text-8xl md:text-9xl lg:text-[10rem] font-black leading-none tracking-tighter"
+              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.8, y: 50 }}
+              animate={prefersReducedMotion ? {} : { opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <span className="block text-white drop-shadow-[0_0_40px_rgba(139,92,246,0.5)]">
+                SHOP
+              </span>
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 -mt-4 md:-mt-8">
+                ALL
+              </span>
+            </motion.h1>
+          </div>
+
+          {/* Subtítulo */}
+          <motion.p
+            className="text-white/70 text-lg md:text-2xl mb-12 font-light"
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 30 }}
+            animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
           >
+            Streetwear exclusivo · Ediciones limitadas · Sin restock
+          </motion.p>
+
+          {/* Stats mini */}
+          <motion.div
+            className="grid grid-cols-4 gap-4 max-w-3xl mx-auto"
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 40 }}
+            animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+          >
+            {[
+              { value: stats.total, label: 'Total', icon: '📦' },
+              { value: stats.inStock, label: 'Stock', icon: '✅' },
+              { value: stats.lowStock, label: 'Últimas', icon: '⚠️' },
+              { value: stats.soldOut, label: 'Sold Out', icon: '💀' }
+            ].map((stat, i) => (
+              <motion.div
+                key={i}
+                className="bg-black/50 backdrop-blur-sm border border-purple-500/30 p-4"
+                whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -5 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="text-2xl mb-1">{stat.icon}</div>
+                <div className="text-2xl md:text-3xl font-black text-purple-400">
+                  {stat.value}
+                </div>
+                <div className="text-white/40 text-xs font-bold tracking-wider">
+                  {stat.label}
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
+
+        {/* Número decorativo */}
+        <div 
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[300px] md:text-[500px] font-black text-purple-500/[0.02] pointer-events-none select-none leading-none -z-10"
+          aria-hidden="true"
+        >
+          999
+        </div>
+      </section>
+
+      {/* ✅ FILTROS STICKY MEJORADOS */}
+      <section className="sticky top-20 md:top-24 z-40 bg-black/95 backdrop-blur-lg border-y border-purple-500/20 px-4 md:px-6 py-4">
+        <div className="container mx-auto max-w-7xl">
+          
+          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
             
-            {/* Categorías */}
-            <div className="flex flex-wrap gap-2">
-              {categories.map((cat) => (
-                <motion.button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-5 py-2 font-bold text-sm tracking-wider transition-all ${
-                    selectedCategory === cat.id
-                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/50'
-                      : 'bg-white/5 text-white/50 hover:bg-white/10 border border-white/10'
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {cat.label}
-                </motion.button>
-              ))}
+            {/* Categorías mejoradas */}
+            <div className="w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0">
+              <div className="flex gap-2 min-w-max lg:min-w-0 lg:flex-wrap">
+                {categories.map((cat) => (
+                  <motion.button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`flex items-center gap-2 px-4 md:px-5 py-3 font-black text-xs md:text-sm tracking-wider transition-all whitespace-nowrap ${
+                      selectedCategory === cat.id
+                        ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/50'
+                        : 'bg-zinc-950 text-white/50 hover:text-white border border-white/10 hover:border-purple-500/50'
+                    }`}
+                    whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <span className="text-base">{cat.icon}</span>
+                    {cat.label}
+                  </motion.button>
+                ))}
+              </div>
             </div>
 
-            {/* Search y Sort */}
-            <div className="flex gap-3 w-full lg:w-auto">
+            {/* Controles derecha */}
+            <div className="flex gap-2 md:gap-3 w-full lg:w-auto">
               
-              {/* Búsqueda */}
+              {/* Search mejorado */}
               <div className="relative flex-1 lg:w-64">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-400">
+                  🔍
+                </div>
                 <input
                   type="text"
                   placeholder="Buscar productos..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 focus:border-purple-500 text-white placeholder:text-white/30 outline-none text-sm transition-colors"
+                  className="w-full pl-10 pr-10 py-3 bg-zinc-950 border border-white/10 focus:border-purple-500 text-white placeholder:text-white/30 outline-none text-xs md:text-sm transition-colors"
                 />
                 {searchTerm && (
                   <button
@@ -165,62 +314,118 @@ export default function TiendaPage() {
                 )}
               </div>
 
-              {/* Ordenar */}
+              {/* Sort */}
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-2 bg-white/5 border border-white/10 text-white text-sm outline-none cursor-pointer hover:border-purple-500 transition-colors"
+                className="px-4 py-3 bg-zinc-950 border border-white/10 text-white text-xs md:text-sm outline-none cursor-pointer hover:border-purple-500 transition-colors"
               >
-                <option value="newest">Más reciente</option>
-                <option value="price-low">Menor precio</option>
-                <option value="price-high">Mayor precio</option>
-                <option value="name">A-Z</option>
+                <option value="newest">🆕 Reciente</option>
+                <option value="price-low">💰 $ Menor</option>
+                <option value="price-high">💎 $ Mayor</option>
+                <option value="name">🔤 A-Z</option>
               </select>
-            </div>
-          </motion.div>
 
+              {/* View mode toggle */}
+              <div className="hidden md:flex gap-1 border border-white/10 p-1">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 transition-colors ${
+                    viewMode === 'grid' ? 'bg-purple-600 text-white' : 'text-white/50 hover:text-white'
+                  }`}
+                  title="Vista Grid"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z"/>
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 transition-colors ${
+                    viewMode === 'list' ? 'bg-purple-600 text-white' : 'text-white/50 hover:text-white'
+                  }`}
+                  title="Vista Lista"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h16v2H4v-2z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Results counter */}
+          <div className="flex items-center gap-3 mt-4 text-white/50 text-xs md:text-sm">
+            <span className="text-purple-400 font-bold text-base">{filteredProducts.length}</span>
+            {filteredProducts.length === 1 ? 'producto encontrado' : 'productos encontrados'}
+            {selectedCategory !== 'all' && (
+              <>
+                <span className="text-white/20">·</span>
+                <button
+                  onClick={resetFilters}
+                  className="text-purple-400 hover:text-purple-300 font-bold underline"
+                >
+                  Limpiar filtros
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </section>
 
-      {/* GRID DE PRODUCTOS */}
-      <section className="px-6">
+      {/* ✅ GRID DE PRODUCTOS */}
+      <section className="px-4 md:px-6 py-12 md:py-16">
         <div className="container mx-auto max-w-7xl">
           
           <AnimatePresence mode="wait">
             {filteredProducts.length === 0 ? (
               
-              // Empty state
+              // Empty state épico
               <motion.div
                 key="empty"
-                className="text-center py-20"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+                className="text-center py-20 md:py-32"
+                initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.9 }}
+                animate={prefersReducedMotion ? {} : { opacity: 1, scale: 1 }}
+                exit={prefersReducedMotion ? {} : { opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
               >
-                <div className="text-8xl mb-4">🔍</div>
-                <h3 className="text-2xl font-bold text-white mb-2">
-                  No encontramos nada
-                </h3>
-                <p className="text-white/50 mb-6">
-                  Intenta con otro término de búsqueda
-                </p>
-                <button
-                  onClick={() => {
-                    setSearchTerm('')
-                    setSelectedCategory('all')
+                <motion.div 
+                  className="text-8xl md:text-9xl mb-6"
+                  animate={prefersReducedMotion ? {} : {
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 10, -10, 0],
                   }}
-                  className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm transition-colors"
+                  transition={{ duration: 2, repeat: Infinity }}
                 >
-                  VER TODO
-                </button>
+                  🔍
+                </motion.div>
+                <h3 className="text-3xl md:text-4xl font-black text-white mb-4">
+                  NO ENCONTRAMOS NADA
+                </h3>
+                <p className="text-white/50 text-base md:text-lg mb-8 max-w-md mx-auto">
+                  Intenta con otro término de búsqueda o explora todas las categorías
+                </p>
+                <motion.button
+                  onClick={resetFilters}
+                  className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white font-black text-sm tracking-wider transition-colors relative overflow-hidden group"
+                  whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                  <span className="relative z-10">VER TODO</span>
+                </motion.button>
               </motion.div>
 
             ) : (
               
-              // Grid de productos
+              // Grid/List responsive
               <motion.div
                 key="grid"
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                className={
+                  viewMode === 'grid'
+                    ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6'
+                    : 'flex flex-col gap-6'
+                }
                 layout
               >
                 {filteredProducts.map((product, index) => (
@@ -228,8 +433,10 @@ export default function TiendaPage() {
                     key={product.id} 
                     product={product} 
                     index={index}
+                    viewMode={viewMode}
                     onFlyToCart={handleFlyToCart}
                     router={router}
+                    prefersReducedMotion={prefersReducedMotion}
                   />
                 ))}
               </motion.div>
@@ -239,53 +446,55 @@ export default function TiendaPage() {
         </div>
       </section>
 
-      {/* ANIMACIÓN "FLY TO CART" */}
-      <AnimatePresence>
-        {flyingItem && (
-          <motion.div
-            className="fixed z-[100] pointer-events-none"
-            initial={{
-              x: flyingItem.startX,
-              y: flyingItem.startY,
-              scale: 1,
-              opacity: 1
-            }}
-            animate={{
-              x: window.innerWidth - 100,
-              y: 20,
-              scale: 0.3,
-              opacity: 0.5
-            }}
-            exit={{ opacity: 0 }}
-            transition={{
-              duration: 0.8,
-              ease: [0.4, 0.0, 0.2, 1]
-            }}
-          >
-            <div className="w-24 h-32 bg-zinc-900 border-2 border-purple-500 relative overflow-hidden shadow-2xl shadow-purple-500/50">
-              <Image
-                src={flyingItem.product.image}
-                alt={flyingItem.product.title}
-                fill
-                className="object-cover"
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Fly to cart animation */}
+      {!prefersReducedMotion && (
+        <AnimatePresence>
+          {flyingItem && (
+            <motion.div
+              className="fixed z-[100] pointer-events-none hidden md:block"
+              initial={{
+                x: flyingItem.startX,
+                y: flyingItem.startY,
+                scale: 1,
+                opacity: 1
+              }}
+              animate={{
+                x: typeof window !== 'undefined' ? window.innerWidth - 100 : 0,
+                y: 20,
+                scale: 0.3,
+                opacity: 0.5
+              }}
+              exit={{ opacity: 0 }}
+              transition={{
+                duration: 0.8,
+                ease: [0.4, 0.0, 0.2, 1]
+              }}
+            >
+              <div className="w-24 h-32 bg-zinc-900 border-2 border-purple-500 relative overflow-hidden shadow-2xl shadow-purple-500/50">
+                <Image
+                  src={flyingItem.product.image}
+                  alt={flyingItem.product.title}
+                  fill
+                  sizes="96px"
+                  className="object-cover"
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
 
     </div>
   )
 }
 
-// PRODUCT CARD COMPONENT
-function ProductCard({ product, index, onFlyToCart, router }) {
+// ✅ PRODUCT CARD MEJORADA
+function ProductCard({ product, index, viewMode, onFlyToCart, router, prefersReducedMotion }) {
   const [imageLoaded, setImageLoaded] = useState(false)
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = useCallback((e) => {
     e.stopPropagation()
     
-    // Obtener posición del botón
     const rect = e.currentTarget.getBoundingClientRect()
     const startPosition = {
       x: rect.left + rect.width / 2,
@@ -293,19 +502,87 @@ function ProductCard({ product, index, onFlyToCart, router }) {
     }
     
     onFlyToCart(product, startPosition)
+  }, [product, onFlyToCart])
+
+  const handleCardClick = useCallback(() => {
+    router.push(`/producto/${product.slug}`)
+  }, [router, product.slug])
+
+  if (viewMode === 'list') {
+    // Vista lista para desktop
+    return (
+      <motion.div
+        className="hidden md:flex group relative cursor-pointer bg-zinc-950 border-2 border-white/10 hover:border-purple-500/50 transition-all overflow-hidden"
+        initial={prefersReducedMotion ? false : { opacity: 0, x: -50 }}
+        animate={prefersReducedMotion ? {} : { opacity: 1, x: 0 }}
+        transition={{ delay: Math.min(index * 0.03, 0.3), duration: 0.4 }}
+        whileHover={prefersReducedMotion ? {} : { scale: 1.01, x: 5 }}
+        onClick={handleCardClick}
+      >
+        {/* Imagen */}
+        <div className="relative w-48 h-48 flex-shrink-0 overflow-hidden bg-zinc-900">
+          <Image
+            src={product.image}
+            alt={product.title}
+            fill
+            sizes="192px"
+            className="object-cover group-hover:scale-110 transition-transform duration-700"
+            onLoad={() => setImageLoaded(true)}
+          />
+          {!imageLoaded && (
+            <div className="absolute inset-0 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 animate-pulse" />
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 p-6 flex items-center justify-between">
+          <div className="flex-1">
+            <h3 className="text-2xl font-black text-white mb-2 group-hover:text-purple-400 transition-colors">
+              {product.title}
+            </h3>
+            <p className="text-white/60 text-sm mb-4 line-clamp-2">
+              {product.description}
+            </p>
+            <div className="flex items-center gap-4">
+              <div className="text-3xl font-black text-white">
+                {formatPrice(product.price)}
+              </div>
+              {product.stock < 5 && product.stock > 0 && (
+                <span className="px-3 py-1 bg-pink-500/20 border border-pink-500 text-pink-400 text-xs font-bold">
+                  ÚLTIMAS {product.stock}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <motion.button
+            onClick={handleAddToCart}
+            disabled={product.stock === 0}
+            className="px-8 py-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white font-black tracking-wider transition-colors"
+            whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {product.stock === 0 ? 'AGOTADO' : 'AGREGAR →'}
+          </motion.button>
+        </div>
+      </motion.div>
+    )
   }
 
+  // Vista grid (original mejorada)
   return (
     <motion.div
       className="group relative cursor-pointer"
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05, duration: 0.4 }}
-      layout
-      onClick={() => router.push(`/producto/${product.slug}`)}
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 30 }}
+      animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+      transition={{ 
+        delay: Math.min(index * 0.05, 0.5), 
+        duration: 0.5 
+      }}
+      whileHover={prefersReducedMotion ? {} : { y: -8 }}
+      onClick={handleCardClick}
     >
-      {/* Card container */}
-      <div className="relative bg-zinc-950 border border-white/10 overflow-hidden group-hover:border-purple-500/50 transition-all duration-300">
+      <div className="relative bg-zinc-950 border-2 border-white/10 overflow-hidden group-hover:border-purple-500 transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-purple-500/20">
         
         {/* Imagen */}
         <div className="relative aspect-[3/4] overflow-hidden bg-zinc-900">
@@ -313,74 +590,76 @@ function ProductCard({ product, index, onFlyToCart, router }) {
             src={product.image}
             alt={product.title}
             fill
+            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+            loading={index < 8 ? "eager" : "lazy"}
+            priority={index < 4}
             className={`object-cover transition-all duration-700 group-hover:scale-110 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
             onLoad={() => setImageLoaded(true)}
           />
 
-          {/* Skeleton loader */}
           {!imageLoaded && (
             <div className="absolute inset-0 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 animate-pulse" />
           )}
 
           {/* Overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-          {/* Badge de stock bajo */}
+          {/* Badges */}
           {product.stock < 5 && product.stock > 0 && (
             <motion.div
-              className="absolute top-4 right-4 px-3 py-1 bg-pink-500 text-white text-xs font-black tracking-wider rotate-3 shadow-lg"
+              className="absolute top-3 right-3 px-3 py-1.5 bg-pink-500 text-white text-xs font-black tracking-wider rotate-3"
               initial={{ rotate: 0, scale: 0 }}
               animate={{ rotate: 3, scale: 1 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.2 }}
             >
-              ÚLTIMAS {product.stock}
+              ⚠️ ÚLTIMAS {product.stock}
             </motion.div>
           )}
 
-          {/* Badge agotado */}
           {product.stock === 0 && (
-            <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
-              <div className="text-white font-black text-2xl tracking-wider">
-                SOLD OUT
+            <div className="absolute inset-0 bg-black/90 flex items-center justify-center backdrop-blur-sm">
+              <div className="text-center">
+                <div className="text-white font-black text-2xl mb-2 rotate-[-5deg]">
+                  SOLD OUT
+                </div>
+                <div className="text-white/50 text-sm">
+                  999/999
+                </div>
               </div>
             </div>
           )}
 
-          {/* Quick actions hover */}
-          <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+          {/* Quick add hover - desktop */}
+          <div className="hidden md:block absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
             <button
               onClick={handleAddToCart}
               disabled={product.stock === 0}
-              className="w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold text-sm tracking-wider transition-colors relative overflow-hidden group/btn"
+              className="w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white font-black text-sm tracking-wider transition-colors relative overflow-hidden group/btn"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" />
               <span className="relative z-10">
-                {product.stock === 0 ? 'AGOTADO' : 'AGREGAR AL CART'}
+                {product.stock === 0 ? 'AGOTADO' : 'AGREGAR AL CART →'}
               </span>
             </button>
           </div>
         </div>
 
-        {/* Info section */}
-        <div className="p-5 space-y-3">
-          
-          {/* Título */}
-          <h3 className="text-lg font-bold text-white group-hover:text-purple-400 transition-colors line-clamp-1">
+        {/* Info */}
+        <div className="p-4 md:p-5 space-y-3">
+          <h3 className="text-base md:text-lg font-black text-white group-hover:text-purple-400 transition-colors line-clamp-2 leading-tight">
             {product.title}
           </h3>
 
-          {/* Descripción */}
-          <p className="text-white/50 text-xs line-clamp-2 leading-relaxed">
+          <p className="hidden md:block text-white/50 text-xs line-clamp-2">
             {product.description}
           </p>
 
-          {/* Precio y tallas */}
-          <div className="flex items-end justify-between pt-2 border-t border-white/10">
+          <div className="flex items-end justify-between pt-3 border-t border-white/10">
             <div>
-              <div className="text-2xl font-black text-white">
-                ${product.price}
+              <div className="text-2xl md:text-3xl font-black text-white">
+                {formatPrice(product.price)}
               </div>
               {product.sizes && (
                 <div className="flex gap-1 mt-2">
@@ -396,32 +675,26 @@ function ProductCard({ product, index, onFlyToCart, router }) {
               )}
             </div>
 
-            {/* Arrow indicator */}
-            <motion.div
+            <motion.div 
               className="text-purple-400 text-2xl"
-              animate={{ x: [0, 5, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
+              animate={prefersReducedMotion ? {} : { x: [0, 5, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
             >
               →
             </motion.div>
           </div>
 
-          {/* Colores disponibles */}
-          {product.colors && product.colors.length > 0 && (
-            <div className="flex gap-2 pt-2">
-              {product.colors.map(color => (
-                <div
-                  key={color}
-                  className="w-6 h-6 rounded-full border-2 border-white/20"
-                  style={{ backgroundColor: color === 'black' ? '#000' : color === 'white' ? '#fff' : color }}
-                  title={color}
-                />
-              ))}
-            </div>
-          )}
+          {/* Botón móvil */}
+          <button
+            onClick={handleAddToCart}
+            disabled={product.stock === 0}
+            className="md:hidden w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white font-bold text-xs tracking-wider transition-colors"
+          >
+            {product.stock === 0 ? 'AGOTADO' : 'AGREGAR'}
+          </button>
         </div>
 
-        {/* Shine effect sutil */}
+        {/* Shine effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
       </div>
     </motion.div>
