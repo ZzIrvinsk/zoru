@@ -3,9 +3,11 @@ import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useState, useEffect, useMemo, useCallback } from 'react'
 
+
 export default function Hero() {
   const prefersReducedMotion = useReducedMotion()
   const [count, setCount] = useState(0)
+
 
   // ✅ Inicializar countdown solo una vez
   useEffect(() => {
@@ -13,6 +15,7 @@ export default function Hero() {
     const t = setInterval(() => setCount(c => c > 0 ? c - 1 : 0), 1000)
     return () => clearInterval(t)
   }, [])
+
 
   // ✅ Memoizar formato de tiempo para evitar recálculos
   const formatTime = useCallback((s) => {
@@ -22,7 +25,9 @@ export default function Hero() {
     return `${h}:${m}:${sec}`
   }, [])
 
+
   const formattedTime = useMemo(() => formatTime(count), [count, formatTime])
+
 
   return (
     <section className="relative min-h-[calc(100vh-80px)] md:min-h-screen bg-black overflow-hidden flex items-center">
@@ -37,6 +42,7 @@ export default function Hero() {
         />
       )}
 
+
       {/* Textura grunge de fondo - optimizada */}
       <div 
         className="absolute inset-0 opacity-5 pointer-events-none" 
@@ -45,6 +51,7 @@ export default function Hero() {
           willChange: 'auto'
         }} 
       />
+
 
       {/* Grid retro - animado en entrada */}
       <motion.div 
@@ -58,6 +65,7 @@ export default function Hero() {
         animate={prefersReducedMotion ? {} : { opacity: 0.03, scale: 1 }}
         transition={{ duration: 1.2, ease: "easeOut" }}
       />
+
 
       {/* ✅ Decoración: Esquinas glitch - animadas */}
       <motion.div 
@@ -85,12 +93,13 @@ export default function Hero() {
         transition={{ duration: 0.8, delay: 0.5 }}
       />
 
+
       {/* Contenido principal */}
       <div className="container relative z-10 px-4 md:px-6 py-12 md:py-20">
         
         {/* ✅ Badge "LIVE DROP" flotante - entrada dramática */}
         <motion.div
-          className="absolute top-4 md:top-8 right-4 md:right-20"
+          className="absolute top-20 md:top-24 right-4 md:right-20 z-30"
           initial={prefersReducedMotion ? false : { opacity: 0, scale: 0, rotate: -180 }}
           animate={prefersReducedMotion ? {} : { 
             opacity: 1,
@@ -131,6 +140,7 @@ export default function Hero() {
           </motion.div>
         </motion.div>
 
+
         <div className="max-w-6xl mx-auto">
           
           {/* ✅ Título gigante con ENTRADA ÉPICA */}
@@ -150,6 +160,7 @@ export default function Hero() {
             >
               999
             </motion.div>
+
 
             {/* ✅ Título principal - EXPLOSIÓN DE ENTRADA */}
             <h1 className="relative text-[60px] sm:text-[80px] md:text-[140px] lg:text-[180px] font-black leading-none tracking-tighter">
@@ -199,6 +210,7 @@ export default function Hero() {
               </motion.span>
             </h1>
 
+
             {/* ✅ Subtítulo - fade in suave */}
             <motion.p 
               className="text-white/70 text-base md:text-2xl font-light mt-4 md:mt-8 tracking-wide max-w-2xl leading-relaxed"
@@ -212,6 +224,7 @@ export default function Hero() {
               </span>
             </motion.p>
           </motion.div>
+
 
           {/* ✅ Countdown + CTAs - entrada escalonada */}
           <motion.div
@@ -242,10 +255,12 @@ export default function Hero() {
                   </span>
                 </div>
 
+
                 {/* Timer gigante */}
                 <div className="font-mono text-4xl md:text-6xl font-black text-white mb-4 md:mb-6 tracking-tight">
                   {formattedTime}
                 </div>
+
 
                 {/* Barra de progreso */}
                 <div className="w-full h-1 bg-zinc-800 overflow-hidden">
@@ -257,11 +272,13 @@ export default function Hero() {
                   />
                 </div>
 
+
                 <p className="text-white/40 text-[10px] md:text-xs mt-3 md:mt-4 tracking-wide">
                   SOLO <span className="text-pink-500 font-bold">999 UNIDADES</span> DISPONIBLES
                 </p>
               </div>
             </motion.div>
+
 
             {/* ✅ CTAs Stack - entrada desde la derecha */}
             <motion.div 
@@ -301,6 +318,7 @@ export default function Hero() {
                 </motion.div>
               </Link>
 
+
               {/* Botón secundario */}
               <Link href="/raffle">
                 <motion.div
@@ -322,6 +340,7 @@ export default function Hero() {
                 </motion.div>
               </Link>
 
+
               {/* Info adicional */}
               <motion.div 
                 className="flex flex-wrap items-center gap-3 md:gap-4 text-white/40 text-[10px] md:text-xs mt-2"
@@ -338,7 +357,9 @@ export default function Hero() {
               </motion.div>
             </motion.div>
 
+
           </motion.div>
+
 
           {/* ✅ Tags estilo graffiti - entrada escalonada */}
           <motion.div
@@ -361,8 +382,10 @@ export default function Hero() {
             ))}
           </motion.div>
 
+
         </div>
       </div>
+
 
       {/* Efecto de luz inferior */}
       <motion.div 
@@ -372,6 +395,7 @@ export default function Hero() {
         animate={prefersReducedMotion ? {} : { opacity: 1 }}
         transition={{ delay: 1.5, duration: 1 }}
       />
+
 
     </section>
   )
