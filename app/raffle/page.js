@@ -323,7 +323,7 @@ export default function RafflePage() {
               {
                 step: '01',
                 title: 'INSCRÍBETE',
-                desc: 'Llena el formulario cada semana. Es gratis y toma 30 segundos.'
+                desc: 'Llena el formulario cada semana. Es gratis y muy sencillo.'
               },
               {
                 step: '02',

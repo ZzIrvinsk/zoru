@@ -73,7 +73,7 @@ export default function HomePage() {
                 whileInView={prefersReducedMotion ? {} : { opacity: 1, scale: 1 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.4 }}
-                onClick={() => router.push(`/producto/${featured[0].slug}`)}
+                onClick={() => router.push(`/producto/S/{featured[0].slug}`)}
                 whileHover={prefersReducedMotion ? {} : { y: -8 }}
               >
                 <div className="relative w-full h-full">
@@ -104,7 +104,7 @@ export default function HomePage() {
                   </h3>
                   <div className="flex items-center justify-between">
                     <span className="text-white text-2xl md:text-3xl font-black">
-                      ${featured[0].price}
+                      S/{featured[0].price}
                     </span>
                     <span className="text-purple-400 text-2xl md:text-4xl">→</span>
                   </div>
@@ -124,7 +124,7 @@ export default function HomePage() {
                 whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: 0.1, duration: 0.4 }}
-                onClick={() => router.push(`/producto/${featured[1].slug}`)}
+                onClick={() => router.push(`/producto/S/{featured[1].slug}`)}
                 whileHover={prefersReducedMotion ? {} : { y: -8 }}
               >
                 <div className="relative w-full h-full">
@@ -154,7 +154,7 @@ export default function HomePage() {
                   </h3>
                   <div className="flex items-center justify-between">
                     <span className="text-white text-lg md:text-xl font-black">
-                      ${featured[1].price}
+                      S/{featured[1].price}
                     </span>
                     <span className="text-purple-400 text-xl md:text-2xl">→</span>
                   </div>
@@ -171,7 +171,7 @@ export default function HomePage() {
                 whileInView={prefersReducedMotion ? {} : { opacity: 1, scale: 1 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: 0.15, duration: 0.4 }}
-                onClick={() => router.push(`/producto/${featured[2].slug}`)}
+                onClick={() => router.push(`/producto/S/{featured[2].slug}`)}
                 whileHover={prefersReducedMotion ? {} : { y: -8, scale: 1.02 }}
               >
                 <div className="relative w-full h-full">
@@ -198,7 +198,7 @@ export default function HomePage() {
                   </h3>
                   <div className="flex items-center justify-between">
                     <span className="text-white text-lg md:text-xl font-black">
-                      ${featured[2].price}
+                      S/{featured[2].price}
                     </span>
                     <span className="text-purple-400 text-lg md:text-xl">→</span>
                   </div>
@@ -214,7 +214,7 @@ export default function HomePage() {
                 whileInView={prefersReducedMotion ? {} : { opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: 0.2, duration: 0.4 }}
-                onClick={() => router.push(`/producto/${featured[3].slug}`)}
+                onClick={() => router.push(`/producto/S/{featured[3].slug}`)}
                 whileHover={prefersReducedMotion ? {} : { y: -8, scale: 1.02 }}
               >
                 <div className="relative w-full h-full">
@@ -241,7 +241,7 @@ export default function HomePage() {
                   </h3>
                   <div className="flex items-center justify-between">
                     <span className="text-white text-lg md:text-xl font-black">
-                      ${featured[3].price}
+                      S/{featured[3].price}
                     </span>
                     <span className="text-purple-400 text-lg md:text-xl">→</span>
                   </div>
@@ -257,7 +257,7 @@ export default function HomePage() {
                 whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: 0.25, duration: 0.4 }}
-                onClick={() => router.push(`/producto/${featured[4].slug}`)}
+                onClick={() => router.push(`/producto/S/{featured[4].slug}`)}
                 whileHover={prefersReducedMotion ? {} : { y: -8 }}
               >
                 <div className="relative w-full h-full">
@@ -288,7 +288,7 @@ export default function HomePage() {
                     </h3>
                     <div className="flex items-center gap-3 md:gap-4">
                       <span className="text-white text-xl md:text-2xl font-black">
-                        ${featured[4].price}
+                        S/{featured[4].price}
                       </span>
                       <div className="flex-1 h-[2px] bg-purple-500 max-w-[100px]" />
                       <span className="text-purple-400 text-xl md:text-2xl">→</span>
@@ -350,7 +350,7 @@ export default function HomePage() {
                     className="relative bg-black border border-white/10 overflow-hidden hover:border-purple-500/50 transition-all cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation()
-                      router.push(`/producto/${product.slug}`)
+                      router.push(`/producto/S/{product.slug}`)
                     }}
                   >
                     {/* Imagen */}
@@ -379,7 +379,7 @@ export default function HomePage() {
                       </h3>
                       <div className="flex items-center justify-between">
                         <span className="text-purple-400 text-lg md:text-xl font-black">
-                          ${product.price}
+                          S/{product.price}
                         </span>
                         {product.stock < 5 && (
                           <span className="text-pink-500 text-[10px] md:text-xs font-bold">
@@ -463,7 +463,7 @@ export default function HomePage() {
               {
                 icon: '⚡',
                 title: 'RÁPIDO',
-                desc: 'Drops semanales. Entregas en 24h en Lima.'
+                desc: 'Drops semanales. Entregas en 24h a todo Trujillo.'
               }
             ].map((item, i) => (
               <motion.div

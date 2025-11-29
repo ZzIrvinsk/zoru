@@ -79,7 +79,7 @@ export default function CartDrawer() {
             <div className="p-4 md:p-6 border-b-2 border-purple-500/30 flex items-center justify-between bg-gradient-to-r from-purple-900/10 to-transparent">
               <div>
                 <h3 className="font-black text-xl md:text-2xl text-white tracking-tighter">
-                  YOUR CART
+                  TU CARRITO
                 </h3>
                 <p className="text-purple-400 text-[10px] md:text-xs mt-1 font-bold">
                   {itemsText}

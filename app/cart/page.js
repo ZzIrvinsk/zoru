@@ -142,9 +142,9 @@ export default function CartPage() {
                 ZORU / CHECKOUT
               </span>
               <h1 className="mt-2 text-4xl md:text-7xl font-black text-white tracking-tighter leading-none">
-                YOUR
+                TU
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 -mt-1 md:-mt-2">
-                  CART
+                  CARRITO
                 </span>
               </h1>
               <div className="mt-2 h-[2px] w-24 md:w-40 bg-gradient-to-r from-purple-500 via-pink-500 to-transparent" />
@@ -251,7 +251,7 @@ export default function CartPage() {
               {items.map((it, index) => (
                 <motion.div
                   key={it.product.id}
-                  className={`group relative bg-zinc-950/50 backdrop-blur-sm border-2 border-white/10 hover:border-purple-500/50 p-4 md:p-6 transition-colors duration-300 ${
+                  className={`group relative bg-zinc-950/50 backdrop-blur-sm border-2 border-white/10 hover:border-purple-500/50 p-4 md:p-6 transition-colors duration-300 S/{
                     removingId === it.product.id ? 'opacity-50' : ''
                   }`}
                   initial={prefersReducedMotion ? false : { opacity: 0, x: -30 }}
@@ -301,7 +301,7 @@ export default function CartPage() {
 
                       <div className="flex items-center gap-2 md:gap-4 flex-wrap text-sm md:text-base">
                         <div className="text-purple-400 font-bold text-base md:text-lg">
-                          ${it.product.price}
+                          S/{it.product.price}
                         </div>
                         <div className="text-white/30 text-xs md:text-sm">× {it.qty}</div>
                         <div className="text-white/30 hidden md:block">→</div>
@@ -407,7 +407,7 @@ export default function CartPage() {
 
                   <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t-2 border-white/10 space-y-3">
                     {[
-                      { icon: '🚚', text: 'Envío seguro en Lima' },
+                      { icon: '🚚', text: 'Envío seguro a todo Perú' },
                       { icon: '↩️', text: 'Cambios dentro de 7 días' },
                       { icon: '🔒', text: 'Tus datos están protegidos' },
                     ].map((item, i) => (
@@ -526,7 +526,7 @@ export default function CartPage() {
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('mercadopago')}
-                    className={`w-full border px-3 py-2 text-left transition-all ${
+                    className={`w-full border px-3 py-2 text-left transition-all S/{
                       paymentMethod === 'mercadopago'
                         ? 'border-purple-500 bg-purple-600/20 text-white'
                         : 'border-white/20 text-white/70 hover:border-purple-500/70'
@@ -537,7 +537,7 @@ export default function CartPage() {
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('yape')}
-                    className={`w-full border px-3 py-2 text-left transition-all ${
+                    className={`w-full border px-3 py-2 text-left transition-all S/{
                       paymentMethod === 'yape'
                         ? 'border-purple-500 bg-purple-600/20 text-white'
                         : 'border-white/20 text-white/70 hover:border-purple-500/70'
@@ -548,7 +548,7 @@ export default function CartPage() {
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('contraentrega')}
-                    className={`w-full border px-3 py-2 text-left transition-all ${
+                    className={`w-full border px-3 py-2 text-left transition-all S/{
                       paymentMethod === 'contraentrega'
                         ? 'border-purple-500 bg-purple-600/20 text-white'
                         : 'border-white/20 text-white/70 hover:border-purple-500/70'

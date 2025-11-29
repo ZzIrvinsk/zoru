@@ -27,13 +27,13 @@ export default function AboutPage() {
 
   const timeline = useMemo(() => [
     {
-      year: '2024',
+      year: '2025',
       title: 'EL INICIO',
       desc: 'Nace ZORU en Lima. Una idea loca de crear streetwear que realmente signifique algo. Sin inversores, sin compromisos.',
       align: 'left'
     },
     {
-      year: '2024',
+      year: '2025',
       title: 'PRIMER DROP',
       desc: 'Lanzamos nuestra primera colección de 999 hoodies. Se agotó en 48 horas. La comunidad empezó a crecer.',
       align: 'right'
@@ -95,7 +95,7 @@ export default function AboutPage() {
             animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            EST. 2024 - LIMA, PERÚ
+            EST. 2025 - TRUJILLO, PERÚ
           </motion.div>
 
           {/* Título gigante responsive */}

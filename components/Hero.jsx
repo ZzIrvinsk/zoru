@@ -30,7 +30,9 @@ export default function Hero() {
 
 
   return (
-    <section className="relative min-h-[calc(100vh-80px)] md:min-h-screen bg-black overflow-hidden flex items-center">
+   <section className="relative min-h-[calc(100vh-80px)] md:min-h-screen bg-black overflow-hidden flex items-center pt-8 md:pt-0">
+
+
       
       {/* ✅ ANIMACIÓN DE ENTRADA: Flash inicial */}
       {!prefersReducedMotion && (
@@ -220,7 +222,7 @@ export default function Hero() {
             >
               Ediciones limitadas que no volverán. <br/>
               <span className="text-purple-400 font-semibold">
-                {count > 0 ? 'Next drop in progress...' : 'AGOTADO'}
+                {count > 0 ? 'Próximo drop en progreso…' : 'AGOTADO'}
               </span>
             </motion.p>
           </motion.div>

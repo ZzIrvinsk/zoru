@@ -270,23 +270,24 @@ export default function DropsPage() {
           style={{ opacity: prefersReducedMotion ? 1 : opacity }}
         >
           
-          {/* Badge animado */}
-          <motion.div
-            className="inline-flex items-center gap-3 px-6 py-3 bg-purple-600/20 border-2 border-purple-500/50 text-purple-400 text-sm font-black tracking-[0.3em] mb-8"
-            initial={prefersReducedMotion ? false : { opacity: 0, y: -50 }}
-            animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <motion.div 
-              className="w-3 h-3 bg-purple-400 rounded-full"
-              animate={prefersReducedMotion ? {} : {
-                scale: [1, 1.5, 1],
-                opacity: [1, 0.5, 1],
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-            DROP SYSTEM LIVE
-          </motion.div>
+            {/* Badge animado */}
+            <motion.div
+              className="inline-flex items-center gap-3 px-6 py-3 bg-purple-600/20 border-2 border-purple-500/50 text-purple-400 text-sm font-black tracking-[0.3em] mb-8 mt-24 md:mt-28"
+              initial={prefersReducedMotion ? false : { opacity: 0, y: -50 }}
+              animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <motion.div 
+                className="w-3 h-3 bg-purple-400 rounded-full"
+                animate={prefersReducedMotion ? {} : {
+                  scale: [1, 1.5, 1],
+                  opacity: [1, 0.5, 1],
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+              DROP SYSTEM LIVE
+            </motion.div>
+
 
           {/* Título GIGANTE con efecto glitch */}
           <div className="relative mb-8">
@@ -581,7 +582,7 @@ export default function DropsPage() {
       )}
 
       {/* ✅ TABS DE NAVEGACIÓN */}
-      <section className="py-8 px-4 md:px-6 border-y border-white/10 sticky top-20 md:top-24 bg-black z-40">
+      <section className="py-8 px-4 md:px-6 border-y border-white/10 sticky top-32 md:top-36 bg-black z-40">
         <div className="container mx-auto max-w-7xl">
           <div className="flex gap-3">
             <motion.button
