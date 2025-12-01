@@ -18,7 +18,7 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1)
   const [loading, setLoading] = useState(true)
 
-  // ✅ Cargar producto
+  // ✅ Cargar producto (incluye sold out)
   useEffect(() => {
     fetch('/api/products')
       .then(res => res.json())
@@ -36,7 +36,7 @@ export default function ProductPage() {
       })
   }, [params.slug])
 
-  // ✅ Memoizar galería de imágenes
+  // ✅ Memoizar galería
   const images = useMemo(() => {
     if (!product) return []
     return [product.image, product.image, product.image]
@@ -50,13 +50,15 @@ export default function ProductPage() {
     { icon: '✓', text: 'Auténtico garantizado' }
   ], [])
 
-  // ✅ Memoizar precio formateado
+  // ✅ Precio formateado
   const priceFormatted = useMemo(() => {
     return product ? formatPrice(product.price) : ''
   }, [product])
 
-  // ✅ useCallback para handlers
+  // ✅ Handlers
   const handleAddToCart = useCallback(() => {
+    if (product.stock === 0) return // No permitir agregar si está agotado
+    
     if (!selectedSize) {
       alert('Por favor selecciona una talla')
       return
@@ -73,6 +75,7 @@ export default function ProductPage() {
   }, [router])
 
   const incrementQty = useCallback(() => {
+    if (product.stock === 0) return
     setQuantity(prev => Math.min(product.stock, prev + 1))
   }, [product])
 
@@ -97,7 +100,7 @@ export default function ProductPage() {
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank')
   }, [product])
 
-  // ✅ Loading state optimizado
+  // ✅ Loading
   if (loading) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center">
@@ -114,7 +117,7 @@ export default function ProductPage() {
     )
   }
 
-  // ✅ Not found state
+  // ✅ Not found (solo si NO existe el producto)
   if (!product) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center px-4 md:px-6">
@@ -142,12 +145,14 @@ export default function ProductPage() {
     )
   }
 
+  // ✅ Producto encontrado (incluye sold out)
+  const isOutOfStock = product.stock === 0
+
   return (
     <div className="bg-black min-h-screen pt-20 md:pt-24 pb-12 md:pb-16">
-      
       <div className="container mx-auto px-4 md:px-6 max-w-7xl">
         
-        {/* Breadcrumb - responsive */}
+        {/* Breadcrumb */}
         <motion.div
           className="mb-6 md:mb-8 flex items-center gap-2 text-xs md:text-sm text-white/50"
           initial={prefersReducedMotion ? false : { opacity: 0, y: -20 }}
@@ -165,10 +170,10 @@ export default function ProductPage() {
           <span className="text-white/70 truncate max-w-[150px] md:max-w-none">{product.title}</span>
         </motion.div>
 
-        {/* Grid Principal - responsive */}
+        {/* Grid Principal */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           
-          {/* GALERÍA DE IMÁGENES */}
+          {/* GALERÍA */}
           <motion.div
             className="space-y-3 md:space-y-4"
             initial={prefersReducedMotion ? false : { opacity: 0, x: -30 }}
@@ -209,16 +214,22 @@ export default function ProductPage() {
                 </motion.div>
               )}
 
-              {product.stock === 0 && (
-                <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
-                  <div className="text-white font-black text-2xl md:text-4xl tracking-wider">
-                    SOLD OUT
+              {/* Overlay SOLD OUT */}
+              {isOutOfStock && (
+                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-white font-black text-3xl md:text-5xl tracking-wider rotate-[-5deg] mb-2">
+                      SOLD OUT
+                    </div>
+                    <div className="text-white/50 text-sm md:text-base font-mono">
+                      999/999
+                    </div>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Thumbnails - responsive */}
+            {/* Thumbnails */}
             <div className="grid grid-cols-3 gap-2 md:gap-4">
               {images.map((img, i) => (
                 <button
@@ -243,7 +254,7 @@ export default function ProductPage() {
             </div>
           </motion.div>
 
-          {/* INFO DEL PRODUCTO - responsive */}
+          {/* INFO DEL PRODUCTO */}
           <motion.div
             className="space-y-6 md:space-y-8"
             initial={prefersReducedMotion ? false : { opacity: 0, x: 30 }}
@@ -255,7 +266,7 @@ export default function ProductPage() {
               WINTER 2025 DROP
             </div>
 
-            {/* Título - responsive */}
+            {/* Título */}
             <div>
               <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-white mb-3 md:mb-4 leading-tight tracking-tighter">
                 {product.title}
@@ -264,7 +275,15 @@ export default function ProductPage() {
                 <span className="text-2xl md:text-4xl font-black text-white">
                   {priceFormatted}
                 </span>
-                {product.stock > 0 && (
+                {isOutOfStock ? (
+                  <span className="px-3 py-1 bg-red-500/20 border border-red-500 text-red-400 text-xs md:text-sm font-black tracking-wider">
+                    AGOTADO
+                  </span>
+                ) : product.stock < 5 ? (
+                  <span className="px-3 py-1 bg-pink-500/20 border border-pink-500 text-pink-400 text-xs md:text-sm font-bold">
+                    {product.stock} RESTANTES
+                  </span>
+                ) : (
                   <span className="text-xs md:text-sm text-purple-400 font-bold">
                     {product.stock} en stock
                   </span>
@@ -272,15 +291,15 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* Descripción - responsive */}
+            {/* Descripción */}
             <p className="text-white/70 text-sm md:text-lg leading-relaxed">
               {product.description}
             </p>
 
-            {/* Línea decorativa */}
+            {/* Línea */}
             <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
 
-            {/* Selector de Talla - responsive */}
+            {/* Selector de Talla */}
             <div>
               <div className="flex items-center justify-between mb-3 md:mb-4">
                 <label className="text-white font-bold text-sm md:text-base tracking-wider">
@@ -295,9 +314,12 @@ export default function ProductPage() {
                 {(product.sizes || ['S', 'M', 'L', 'XL']).map(size => (
                   <button
                     key={size}
-                    onClick={() => setSelectedSize(size)}
+                    onClick={() => !isOutOfStock && setSelectedSize(size)}
+                    disabled={isOutOfStock}
                     className={`py-2.5 md:py-3 font-bold text-xs md:text-sm tracking-wider transition-all ${
-                      selectedSize === size
+                      isOutOfStock
+                        ? 'bg-white/5 text-white/30 border-2 border-white/10 cursor-not-allowed'
+                        : selectedSize === size
                         ? 'bg-purple-600 text-white border-2 border-purple-500'
                         : 'bg-white/5 text-white border-2 border-white/10 hover:border-purple-500/50'
                     }`}
@@ -310,7 +332,7 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* Cantidad - responsive */}
+            {/* Cantidad */}
             <div>
               <label className="block text-white font-bold text-sm md:text-base tracking-wider mb-3 md:mb-4">
                 CANTIDAD
@@ -318,7 +340,7 @@ export default function ProductPage() {
               <div className="flex items-center gap-3 md:gap-4">
                 <button
                   onClick={decrementQty}
-                  disabled={quantity <= 1}
+                  disabled={quantity <= 1 || isOutOfStock}
                   className="w-10 md:w-12 h-10 md:h-12 flex items-center justify-center border-2 border-white/10 hover:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-lg md:text-xl transition-all"
                   aria-label="Disminuir cantidad"
                 >
@@ -329,7 +351,7 @@ export default function ProductPage() {
                 </span>
                 <button
                   onClick={incrementQty}
-                  disabled={quantity >= product.stock}
+                  disabled={quantity >= product.stock || isOutOfStock}
                   className="w-10 md:w-12 h-10 md:h-12 flex items-center justify-center border-2 border-white/10 hover:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-lg md:text-xl transition-all"
                   aria-label="Aumentar cantidad"
                 >
@@ -338,20 +360,24 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* Botones de acción - responsive */}
+            {/* Botones de acción */}
             <div className="space-y-3 md:space-y-4">
               <motion.button
                 onClick={handleAddToCart}
-                disabled={product.stock === 0}
-                className="w-full py-4 md:py-5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-black text-sm md:text-lg tracking-wider transition-colors relative overflow-hidden group"
-                whileHover={prefersReducedMotion || product.stock === 0 ? {} : { scale: 1.02 }}
-                whileTap={product.stock === 0 ? {} : { scale: 0.98 }}
+                disabled={isOutOfStock}
+                className={`w-full py-4 md:py-5 font-black text-sm md:text-lg tracking-wider transition-colors relative overflow-hidden group ${
+                  isOutOfStock
+                    ? 'bg-gray-700 cursor-not-allowed text-white/50'
+                    : 'bg-purple-600 hover:bg-purple-700 text-white'
+                }`}
+                whileHover={prefersReducedMotion || isOutOfStock ? {} : { scale: 1.02 }}
+                whileTap={isOutOfStock ? {} : { scale: 0.98 }}
               >
-                {!prefersReducedMotion && product.stock > 0 && (
+                {!prefersReducedMotion && !isOutOfStock && (
                   <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
                 )}
                 <span className="relative z-10">
-                  {product.stock === 0 ? 'AGOTADO' : 'AGREGAR AL CART'}
+                  {isOutOfStock ? 'AGOTADO' : 'AGREGAR AL CART'}
                 </span>
               </motion.button>
 
@@ -363,7 +389,7 @@ export default function ProductPage() {
               </button>
             </div>
 
-            {/* Features - responsive */}
+            {/* Features */}
             <div className="space-y-2 md:space-y-3 pt-6 md:pt-8 border-t border-white/10">
               {features.map((feature, i) => (
                 <div key={i} className="flex items-center gap-2 md:gap-3 text-white/60 text-xs md:text-sm">
@@ -373,12 +399,11 @@ export default function ProductPage() {
               ))}
             </div>
 
-            {/* Share - responsive */}
+            {/* Share */}
             <div className="flex flex-wrap items-center gap-3 md:gap-4">
               <span className="text-white/50 text-xs md:text-sm font-bold">COMPARTIR:</span>
               <div className="flex gap-2">
                 
-                {/* Instagram */}
                 <button
                   onClick={shareInstagram}
                   className="w-9 md:w-10 h-9 md:h-10 flex items-center justify-center bg-gradient-to-tr from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all"
@@ -390,7 +415,6 @@ export default function ProductPage() {
                   </svg>
                 </button>
 
-                {/* WhatsApp */}
                 <button
                   onClick={shareWhatsApp}
                   className="w-9 md:w-10 h-9 md:h-10 flex items-center justify-center bg-green-500 hover:bg-green-600 transition-all"
@@ -402,7 +426,6 @@ export default function ProductPage() {
                   </svg>
                 </button>
 
-                {/* Twitter/X */}
                 <button
                   onClick={shareTwitter}
                   className="w-9 md:w-10 h-9 md:h-10 flex items-center justify-center bg-black border border-white/20 hover:bg-white hover:text-black transition-all group"
@@ -418,7 +441,7 @@ export default function ProductPage() {
           </motion.div>
         </div>
 
-        {/* Productos Relacionados - responsive */}
+        {/* Productos Relacionados */}
         <section className="mt-16 md:mt-24">
           <h2 className="text-3xl md:text-5xl font-black text-white mb-4 md:mb-8">
             TAMBIÉN TE PUEDE

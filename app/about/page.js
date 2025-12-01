@@ -88,15 +88,25 @@ export default function AboutPage() {
 
         <div className="relative z-10 container mx-auto px-4 md:px-6 py-16 md:py-24 text-center">
           
-          {/* Badge superior */}
+          
+          {/* Badge superior - MÁS GRANDE Y RECTANGULAR */}
           <motion.div
-            className="inline-block px-3 md:px-4 py-1.5 md:py-2 border-2 border-purple-500/50 text-purple-400 text-[10px] md:text-xs font-black tracking-widest mb-6 md:mb-8"
-            initial={prefersReducedMotion ? false : { opacity: 0, y: -20 }}
+            className="inline-flex items-center gap-3 px-6 py-3 bg-purple-600/20 border-2 border-purple-500/50 text-purple-400 text-sm font-black tracking-[0.3em] mb-8"
+            initial={prefersReducedMotion ? false : { opacity: 0, y: -30 }}
             animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6 }}
           >
+            <motion.div 
+              className="w-3 h-3 bg-purple-400 rounded-full"
+              animate={prefersReducedMotion ? {} : {
+                scale: [1, 1.5, 1],
+                opacity: [1, 0.5, 1],
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
             EST. 2025 - TRUJILLO, PERÚ
           </motion.div>
+
 
           {/* Título gigante responsive */}
           <motion.h1

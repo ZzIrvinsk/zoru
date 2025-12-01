@@ -185,8 +185,8 @@ export default function DropsPage() {
   const soldOutDrops = useMemo(() => products.slice(4, 8), [products])
 
   const stats = useMemo(() => ({
-    totalDrops: 12,
-    soldOut: 8,
+    totalDrops: 3,
+    soldOut: 1,
     upcoming: 3,
     activeNow: liveDrop ? 1 : 0
   }), [liveDrop])

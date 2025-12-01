@@ -1,12 +1,10 @@
 'use client'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
-import { useState, useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 
 export default function Footer() {
   const prefersReducedMotion = useReducedMotion()
-  const [email, setEmail] = useState('')
-  const [subscribed, setSubscribed] = useState(false)
 
   // ✅ Memoizar arrays estáticos
   const shopLinks = useMemo(() => [
@@ -60,27 +58,6 @@ export default function Footer() {
     }
   ], [])
 
-  // ✅ useCallback para handlers
-  const handleSubscribe = useCallback((e) => {
-    e.preventDefault()
-    if (!email) return
-    
-    try {
-      const list = JSON.parse(localStorage.getItem('zoru_newsletter') || '[]')
-      if (!list.includes(email)) list.push(email)
-      localStorage.setItem('zoru_newsletter', JSON.stringify(list))
-      setSubscribed(true)
-      setEmail('')
-      setTimeout(() => setSubscribed(false), 3000)
-    } catch (err) {
-      console.error('Newsletter error:', err)
-    }
-  }, [email])
-
-  const handleEmailChange = useCallback((e) => {
-    setEmail(e.target.value)
-  }, [])
-
   return (
     <footer className="relative bg-black border-t border-purple-500/20 overflow-hidden">
       
@@ -102,56 +79,56 @@ export default function Footer() {
         </>
       )}
 
-      <div className="relative z-10 container mx-auto px-4 md:px-6 py-12 md:py-16">
+      <div className="relative z-10 container mx-auto px-4 md:px-6 py-8 md:py-12">
         
-        {/* Top Section - responsive grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-12 lg:mb-16">
+        {/* Top Section - MÁS COMPACTO */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-8 md:mb-10">
           
           {/* Brand Column */}
           <motion.div 
-            className="lg:col-span-4"
+            className="md:col-span-2 lg:col-span-1"
             initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
             whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.4 }}
           >
-            {/* Logo */}
-            <div className="mb-6">
-              <h3 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-3">
+            {/* Logo más compacto */}
+            <div className="mb-4">
+              <h3 className="text-3xl md:text-4xl font-black text-white tracking-tighter mb-2">
                 ZORU
               </h3>
-              <div className="w-12 md:w-16 h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
+              <div className="w-12 h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
             </div>
 
-            <p className="text-white/60 text-xs md:text-sm leading-relaxed mb-6 max-w-sm">
+            <p className="text-white/60 text-xs leading-relaxed mb-4 max-w-sm">
               Streetwear exclusivo que redefine tu estilo. Drops limitados, 
               autenticidad garantizada, sin restock.
             </p>
 
-            {/* Badges decorativos */}
-            <div className="flex flex-wrap gap-2 md:gap-3 mb-6">
-              <div className="px-2 md:px-3 py-1 bg-purple-500/10 border border-purple-500/30 text-purple-400 text-[10px] md:text-xs font-bold">
+            {/* Badges más compactos */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              <div className="px-2 py-0.5 bg-purple-500/10 border border-purple-500/30 text-purple-400 text-[10px] font-bold">
                 LIMITED EDITION
               </div>
-              <div className="px-2 md:px-3 py-1 bg-pink-500/10 border border-pink-500/30 text-pink-400 text-[10px] md:text-xs font-bold">
+              <div className="px-2 py-0.5 bg-pink-500/10 border border-pink-500/30 text-pink-400 text-[10px] font-bold">
                 999 UNITS
               </div>
             </div>
 
-            {/* Social Icons */}
-            <div className="flex gap-2 md:gap-3">
+            {/* Social Icons más compactos */}
+            <div className="flex gap-2">
               {socialLinks.map((social, i) => (
                 <motion.a
                   key={social.href}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`group w-9 md:w-10 h-9 md:h-10 flex items-center justify-center bg-white/5 ${social.hoverClass} border border-white/10 transition-all`}
+                  className={`group w-9 h-9 flex items-center justify-center bg-white/5 ${social.hoverClass} border border-white/10 transition-all`}
                   whileHover={prefersReducedMotion ? {} : { scale: 1.1, rotate: i % 2 === 0 ? 5 : -5 }}
                   whileTap={{ scale: 0.9 }}
                   aria-label={social.label}
                 >
-                  <svg className={`w-4 md:w-5 h-4 md:h-5 text-white transition-colors ${social.iconColorClass || ''}`} fill="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-4 h-4 text-white transition-colors ${social.iconColorClass || ''}`} fill="currentColor" viewBox="0 0 24 24">
                     {social.icon}
                   </svg>
                 </motion.a>
@@ -159,152 +136,97 @@ export default function Footer() {
             </div>
           </motion.div>
 
-          {/* Links Columns - responsive */}
-          <div className="lg:col-span-5 grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
-            
-            {/* Shop Links */}
-            <motion.div
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-              whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: 0.1, duration: 0.3 }}
-            >
-              <h4 className="text-white font-black text-xs md:text-sm tracking-wider mb-3 md:mb-4 uppercase">
-                Shop
-              </h4>
-              <ul className="space-y-2">
-                {shopLinks.map(link => (
-                  <li key={link.href}>
-                    <Link 
-                      href={link.href}
-                      className="text-white/50 hover:text-purple-400 text-xs md:text-sm transition-colors inline-block group"
-                    >
-                      <span className="relative">
-                        {link.label}
-                        <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-purple-400 group-hover:w-full transition-all duration-300" />
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-
-            {/* Info Links */}
-            <motion.div
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-              whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: 0.15, duration: 0.3 }}
-            >
-              <h4 className="text-white font-black text-xs md:text-sm tracking-wider mb-3 md:mb-4 uppercase">
-                Info
-              </h4>
-              <ul className="space-y-2">
-                {infoLinks.map(link => (
-                  <li key={link.href}>
-                    <Link 
-                      href={link.href}
-                      className="text-white/50 hover:text-purple-400 text-xs md:text-sm transition-colors inline-block group"
-                    >
-                      <span className="relative">
-                        {link.label}
-                        <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-purple-400 group-hover:w-full transition-all duration-300" />
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-
-            {/* Legal Links */}
-            <motion.div
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-              whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: 0.2, duration: 0.3 }}
-            >
-              <h4 className="text-white font-black text-xs md:text-sm tracking-wider mb-3 md:mb-4 uppercase">
-                Legal
-              </h4>
-              <ul className="space-y-2">
-                {legalLinks.map(link => (
-                  <li key={link.href}>
-                    <Link 
-                      href={link.href}
-                      className="text-white/50 hover:text-purple-400 text-xs md:text-sm transition-colors inline-block group"
-                    >
-                      <span className="relative">
-                        {link.label}
-                        <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-purple-400 group-hover:w-full transition-all duration-300" />
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          </div>
-
-          {/* Newsletter - responsive */}
-          <motion.div 
-            className="lg:col-span-3"
+          {/* Shop Links - MÁS COMPACTO */}
+          <motion.div
             initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
             whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
-            transition={{ delay: 0.25, duration: 0.3 }}
+            transition={{ delay: 0.1, duration: 0.3 }}
           >
-            <h4 className="text-white font-black text-xs md:text-sm tracking-wider mb-3 md:mb-4 uppercase">
-              Newsletter
+            <h4 className="text-white font-black text-xs tracking-wider mb-3 uppercase">
+              Shop
             </h4>
-            <p className="text-white/50 text-xs md:text-sm mb-4 leading-relaxed">
-              Acceso anticipado a drops, raffles exclusivos y contenido VIP.
-            </p>
+            <ul className="space-y-1.5">
+              {shopLinks.map(link => (
+                <li key={link.href}>
+                  <Link 
+                    href={link.href}
+                    className="text-white/50 hover:text-purple-400 text-xs transition-colors inline-block group"
+                  >
+                    <span className="relative">
+                      {link.label}
+                      <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-purple-400 group-hover:w-full transition-all duration-300" />
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
 
-            <form onSubmit={handleSubscribe} className="space-y-3">
-              <div className="relative">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={handleEmailChange}
-                  placeholder="tu@email.com"
-                  className="w-full px-3 md:px-4 py-2.5 md:py-3 bg-white/5 border border-white/10 focus:border-purple-500 text-white placeholder:text-white/30 outline-none transition-colors text-xs md:text-sm"
-                  required
-                  disabled={subscribed}
-                />
-              </div>
+          {/* Info Links - MÁS COMPACTO */}
+          <motion.div
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+            whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ delay: 0.15, duration: 0.3 }}
+          >
+            <h4 className="text-white font-black text-xs tracking-wider mb-3 uppercase">
+              Info
+            </h4>
+            <ul className="space-y-1.5">
+              {infoLinks.map(link => (
+                <li key={link.href}>
+                  <Link 
+                    href={link.href}
+                    className="text-white/50 hover:text-purple-400 text-xs transition-colors inline-block group"
+                  >
+                    <span className="relative">
+                      {link.label}
+                      <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-purple-400 group-hover:w-full transition-all duration-300" />
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
 
-              <motion.button
-                type="submit"
-                className="w-full px-4 py-2.5 md:py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 disabled:cursor-not-allowed text-white font-bold text-xs md:text-sm tracking-wider transition-colors relative overflow-hidden group"
-                whileHover={prefersReducedMotion || subscribed ? {} : { scale: 1.02 }}
-                whileTap={subscribed ? {} : { scale: 0.98 }}
-                disabled={subscribed}
-              >
-                {/* Scan effect - solo desktop */}
-                {!prefersReducedMotion && !subscribed && (
-                  <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-                )}
-                
-                <span className="relative z-10">
-                  {subscribed ? '¡SUSCRITO! ✓' : 'SUSCRIBIRME'}
-                </span>
-              </motion.button>
-            </form>
-
-            <p className="text-white/30 text-[10px] md:text-xs mt-3">
-              Sin spam. Solo drops épicos. Puedes cancelar cuando quieras.
-            </p>
+          {/* Legal Links - MÁS COMPACTO */}
+          <motion.div
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+            whileInView={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ delay: 0.2, duration: 0.3 }}
+          >
+            <h4 className="text-white font-black text-xs tracking-wider mb-3 uppercase">
+              Legal
+            </h4>
+            <ul className="space-y-1.5">
+              {legalLinks.map(link => (
+                <li key={link.href}>
+                  <Link 
+                    href={link.href}
+                    className="text-white/50 hover:text-purple-400 text-xs transition-colors inline-block group"
+                  >
+                    <span className="relative">
+                      {link.label}
+                      <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-purple-400 group-hover:w-full transition-all duration-300" />
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </motion.div>
         </div>
 
-        {/* Divider */}
-        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-purple-500/30 to-transparent mb-6 md:mb-8" />
+        {/* Divider más sutil */}
+        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-purple-500/30 to-transparent mb-6" />
 
-        {/* Bottom Section - responsive */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
+        {/* Bottom Section - MÁS COMPACTO */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4">
           
           {/* Copyright */}
           <motion.div
-            className="text-white/40 text-[10px] md:text-xs text-center md:text-left order-2 md:order-1"
+            className="text-white/40 text-[10px] text-center md:text-left order-2 md:order-1"
             initial={prefersReducedMotion ? false : { opacity: 0 }}
             whileInView={prefersReducedMotion ? {} : { opacity: 1 }}
             viewport={{ once: true }}
@@ -317,19 +239,19 @@ export default function Footer() {
             </span>
           </motion.div>
 
-          {/* Payment methods badges - responsive */}
+          {/* Payment methods badges - MÁS COMPACTO */}
           <motion.div
-            className="flex flex-wrap items-center justify-center gap-2 md:gap-3 order-1 md:order-2"
+            className="flex flex-wrap items-center justify-center gap-2 order-1 md:order-2"
             initial={prefersReducedMotion ? false : { opacity: 0 }}
             whileInView={prefersReducedMotion ? {} : { opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.3 }}
           >
-            <span className="text-white/30 text-[10px] md:text-xs">Aceptamos:</span>
+            <span className="text-white/30 text-[10px]">Aceptamos:</span>
             {paymentMethods.map(method => (
               <div 
                 key={method}
-                className="px-1.5 md:px-2 py-0.5 md:py-1 bg-white/5 border border-white/10 text-white/40 text-[9px] md:text-[10px] font-bold"
+                className="px-1.5 py-0.5 bg-white/5 border border-white/10 text-white/40 text-[9px] font-bold"
               >
                 {method}
               </div>
@@ -339,7 +261,7 @@ export default function Footer() {
 
         {/* Decorative number - solo desktop */}
         <div 
-          className="hidden lg:block absolute bottom-4 right-4 text-[100px] md:text-[120px] font-black text-purple-500/5 pointer-events-none select-none leading-none"
+          className="hidden lg:block absolute bottom-2 right-4 text-[80px] font-black text-purple-500/5 pointer-events-none select-none leading-none"
           aria-hidden="true"
         >
           999

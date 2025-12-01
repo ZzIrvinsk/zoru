@@ -245,7 +245,7 @@ export default function TiendaPage() {
           >
             {[
               { value: stats.total, label: 'TOTAL', color: 'from-white to-purple-400' },
-              { value: stats.inStock, label: 'IN STOCK', color: 'from-purple-400 to-pink-500' },
+              { value: stats.inStock, label: 'EN STOCK', color: 'from-purple-400 to-pink-500' },
               { value: stats.lowStock, label: 'LOW', color: 'from-pink-500 to-pink-400' },
               { value: stats.soldOut, label: 'SOLD OUT', color: 'from-white/40 to-white/20' },
             ].map((stat, i) => (
@@ -283,7 +283,7 @@ export default function TiendaPage() {
       </section>
 
       {/* FILTROS STICKY */}
-      <section className="sticky top-20 md:top-24 z-40 bg-black/95 backdrop-blur-lg border-y border-purple-500/20 px-4 md:px-6 py-4">
+      <section className="sticky top-20 md:top-24 z-30 bg-black/95 backdrop-blur-lg border-y border-purple-500/20 px-4 md:px-6 py-4">
         <div className="container mx-auto max-w-7xl">
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
             {/* Categorías */}
@@ -663,7 +663,7 @@ function ProductCard({ product, index, viewMode, onFlyToCart, router, prefersRed
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" />
               <span className="relative z-10">
-                {product.stock === 0 ? 'SOLD OUT' : 'ADD TO CART →'}
+                {product.stock === 0 ? 'SOLD OUT' : 'AÑADIR AL CARRITO →'}
               </span>
             </button>
           </div>
