@@ -183,7 +183,7 @@ export default function AboutPage() {
                   <div className="hidden md:block absolute inset-0 bg-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 )}
                 
-                {/* Número decorativo */}
+                {/* Número decorativo xd */}
                 <div 
                   className="text-6xl md:text-8xl font-black text-purple-500/10 absolute top-3 md:top-4 right-3 md:right-4 leading-none pointer-events-none select-none"
                   aria-hidden="true"
