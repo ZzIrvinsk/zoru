@@ -24,9 +24,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: 'password', type: 'password' },
       },
       authorize: async (credentials) => {
-        const intent = credentials?.intent ?? 'login'
-        const email = credentials?.email?.toLowerCase().trim()
-        const password = credentials?.password
+        const intent = (credentials as any)?.intent ?? 'login'
+
+        const rawEmail = (credentials as any)?.email
+        const email =
+          typeof rawEmail === 'string' ? rawEmail.toLowerCase().trim() : ''
+
+        const password = (credentials as any)?.password as
+          | string
+          | undefined
+
         if (!email || !password) return null
 
         // REGISTRO
@@ -42,7 +49,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const user = await prisma.user.create({
             data: {
               email,
-              name: credentials?.name || email.split('@')[0],
+              name:
+                (credentials as any)?.name ||
+                email.split('@')[0],
               password: hash,
             },
           })
@@ -78,8 +87,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async session({ session, token, user }) {
       if (session.user) {
-        // Extiende la sesión para tener user.id disponible en el cliente
-        // @ts-expect-error estamos agregando id manualmente
+        // @ts-ignore agregamos id manualmente al usuario de sesión
         session.user.id = user?.id ?? token?.sub ?? ''
       }
       return session
