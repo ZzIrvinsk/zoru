@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { useState, useCallback, useMemo } from 'react'
-import { formatPrice } from '@/lib/currency'
+import { formatPrice } from '../lib/currency'
+
 
 export default function CartDrawer() {
   const { items, open, setOpen, remove, total } = useCart()

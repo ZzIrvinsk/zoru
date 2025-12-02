@@ -1,10 +1,14 @@
 'use client'
+
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useCart } from '@/components/CartContext'
-import { formatPrice } from '@/lib/currency'
+import { useCart } from '../../components/CartContext'
+import { formatPrice } from '../../lib/currency'
+
+
+
 
 export default function TiendaPage() {
   const router = useRouter()

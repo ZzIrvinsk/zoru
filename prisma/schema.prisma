@@ -1,14 +1,13 @@
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
-/**
- * ==== MODELOS PARA AUTH (NextAuth / Auth.js) ====
- */
+// ==== MODELOS PARA AUTH (NextAuth / Auth.js) ====
 
 model User {
   id            String    @id @default(cuid())
@@ -17,7 +16,7 @@ model User {
   emailVerified DateTime? @map("email_verified")
   image         String?
 
-  // 👇 NUEVO CAMPO PARA AUTH POR CREDENCIALES
+  // Campo para credenciales (email + contraseña)
   password      String?   // hash bcrypt
 
   accounts Account[]
@@ -75,20 +74,18 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
-/**
- * ==== MODELOS ZORU (PRODUCTOS / ÓRDENES / RAFFLE) ====
- */
+// ==== MODELOS ZORU (PRODUCTOS / ÓRDENES / RAFFLE) ====
 
 model Product {
   id          String    @id @default(cuid())
   title       String
   slug        String    @unique
   description String?
-  price       Int // centavos (S/ 189.00 => 18900)
+  price       Int       // centavos (S/ 189.00 => 18900)
   image       String
   stock       Int       @default(0)
   category    String
-  colors      String[]  @db.Text // array de text en Postgres
+  colors      String[]  @db.Text
   sizes       String[]  @db.Text
   sku         String    @unique
   featured    Boolean   @default(false)
@@ -104,7 +101,7 @@ model Product {
 model Order {
   id        String   @id @default(cuid())
   userId    String
-  total     Int // centavos
+  total     Int      // centavos
   status    String   @default("pending")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -118,7 +115,7 @@ model OrderItem {
   orderId   String
   productId String
   quantity  Int
-  unitPrice Int // centavos
+  unitPrice Int    // centavos
 
   order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id])

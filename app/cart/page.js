@@ -1,5 +1,5 @@
 'use client'
-import { useCart } from '@/components/CartContext'
+import { useCart } from '../../components/CartContext'
 import { useRouter } from 'next/navigation'
 import { motion, useReducedMotion } from 'framer-motion'
 import Image from 'next/image'

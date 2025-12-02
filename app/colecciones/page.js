@@ -2,7 +2,9 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
-import { formatPrice } from '@/lib/currency'
+import { formatPrice } from '../../lib/currency'
+
+
 
 // ✅ COMPONENTE: Contador Animado
 function AnimatedCounter({ value, duration = 2 }) {

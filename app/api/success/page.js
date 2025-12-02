@@ -1,9 +1,10 @@
 'use client'
 import { useEffect } from 'react'
-import { useCart } from '@/components/CartContext'
+import { useCart } from '../../components/CartContext'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+
 
 export default function CheckoutSuccess() {
   const { clear } = useCart()

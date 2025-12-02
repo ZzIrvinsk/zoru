@@ -1,18 +1,18 @@
 // lib/auth.ts
-// lib/auth.ts
-export {}
-
 import NextAuth from 'next-auth'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import Credentials from 'next-auth/providers/credentials'
+import Google from 'next-auth/providers/google'
 import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  session: { strategy: 'database' },
+  session: { strategy: 'jwt' },
   trustHost: true,
-  secret: process.env.AUTH_SECRET,
+
+  // Usa NEXTAUTH_SECRET (definido en Vercel y en .env.local)
+  secret: process.env.NEXTAUTH_SECRET,
 
   providers: [
     Credentials({
@@ -29,18 +29,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = credentials?.password
         if (!email || !password) return null
 
+        // REGISTRO
         if (intent === 'register') {
-          // 1) Ver si ya existe
-          const existing = await prisma.user.findUnique({
-            where: { email },
-          })
+          const existing = await prisma.user.findUnique({ where: { email } })
           if (existing) {
-            // Se puede mapear este error en el cliente
+            // Este mensaje llega a res.error y tu frontend muestra "Ese correo ya está registrado."
             throw new Error('EMAIL_TAKEN')
           }
 
-          // 2) Hashear contraseña y crear usuario
           const hash = await bcrypt.hash(password, 12)
+
           const user = await prisma.user.create({
             data: {
               email,
@@ -49,29 +47,40 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             },
           })
 
-          return { id: user.id, name: user.name ?? '', email: user.email ?? '' }
+          return {
+            id: user.id,
+            name: user.name ?? '',
+            email: user.email ?? '',
+          }
         }
 
         // LOGIN NORMAL
-        const user = await prisma.user.findUnique({
-          where: { email },
-        })
+        const user = await prisma.user.findUnique({ where: { email } })
         if (!user || !user.password) return null
 
         const ok = await bcrypt.compare(password, user.password)
         if (!ok) return null
 
-        return { id: user.id, name: user.name ?? '', email: user.email ?? '' }
+        return {
+          id: user.id,
+          name: user.name ?? '',
+          email: user.email ?? '',
+        }
       },
     }),
-    // Futuro: aquí puedes agregar Google/GitHub sin tocar nada más
+
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
   ],
 
   callbacks: {
-    async session({ session, user }) {
-      if (session.user && user) {
-        // @ts-expect-error extendemos a mano
-        session.user.id = user.id
+    async session({ session, token, user }) {
+      if (session.user) {
+        // Extiende la sesión para tener user.id disponible en el cliente
+        // @ts-expect-error estamos agregando id manualmente
+        session.user.id = user?.id ?? token?.sub ?? ''
       }
       return session
     },
