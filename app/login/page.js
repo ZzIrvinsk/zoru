@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
+import Link from 'next/link'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -36,7 +37,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-10 relative overflow-hidden">
+    <div className="min-h-[calc(100vh-4rem)] bg-black text-white flex items-center justify-center px-4 py-10 relative overflow-hidden">
       {/* Grid retro */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -161,6 +162,17 @@ export default function LoginPage() {
             {isPending ? 'ENTRANDO...' : 'ENTRAR'}
           </button>
         </form>
+
+        {/* Link recuperar contraseña */}
+        <p className="mt-4 text-center text-[11px] sm:text-xs text-zinc-400 font-mono">
+          ¿Olvidaste tu contraseña?{' '}
+          <Link
+            href="/forgot-password"
+            className="text-purple-400 hover:text-purple-300 underline underline-offset-4 font-bold"
+          >
+            RECUPERAR
+          </Link>
+        </p>
 
         {/* Divider */}
         <div className="flex items-center gap-3 my-5">

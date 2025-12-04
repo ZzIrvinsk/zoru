@@ -2,7 +2,7 @@
 import NextAuth from 'next-auth'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import Credentials from 'next-auth/providers/credentials'
-import Google from 'next-auth/providers/google'
+// import Google from 'next-auth/providers/google'  // 👈 lo dejamos comentado por ahora
 import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
 
@@ -78,10 +78,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
 
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
+    // Google desactivado temporalmente para evitar errores de PKCE/InvalidCheck
+    // Google({
+    //   clientId: process.env.GOOGLE_CLIENT_ID!,
+    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    // }),
   ],
 
   callbacks: {

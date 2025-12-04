@@ -29,7 +29,7 @@ export default function AboutPage() {
     {
       year: '2025',
       title: 'EL INICIO',
-      desc: 'Nace ZORU en Lima. Una idea loca de crear streetwear que realmente signifique algo. Sin inversores, sin compromisos.',
+      desc: 'Nace ZORU en Trujillo. Una idea loca de crear streetwear que realmente signifique algo. Sin inversores, sin compromisos.',
       align: 'left'
     },
     {
@@ -54,7 +54,7 @@ export default function AboutPage() {
 
   const stats = useMemo(() => [
     { num: '999', label: 'PIEZAS POR DROP' },
-    { num: '24H', label: 'ENTREGAS LIMA' },
+    { num: '24H', label: 'ENTREGAS TRUJILLO' },
     { num: '100%', label: 'AUTÉNTICO' }
   ], [])
 

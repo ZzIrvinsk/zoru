@@ -6,7 +6,6 @@ import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 
-
 export default function Navbar() {
   const { items, setOpen } = useCart()
   const prefersReducedMotion = useReducedMotion()
@@ -69,13 +68,13 @@ export default function Navbar() {
         href="/perfil"
         className="group relative px-3 lg:px-4 py-2 text-purple-300 hover:text-white text-xs lg:text-sm font-bold tracking-wider transition-colors"
       >
-        Perfil
+        PERFIL
       </Link>
       <button
         onClick={() => signOut({ callbackUrl: '/' })}
         className="group relative px-3 lg:px-4 py-2 text-xs lg:text-sm font-bold tracking-wider text-white/70 hover:text-red-400 transition-colors"
       >
-        Cerrar sesión
+        CERRAR SESIÓN
       </button>
     </>
   ) : (
@@ -90,7 +89,7 @@ export default function Navbar() {
         href="/register"
         className="rounded-full bg-purple-600 px-3 py-2 text-xs lg:text-sm font-medium text-white hover:bg-purple-500"
       >
-        Crear cuenta
+        CREAR CUENTA
       </Link>
     </>
   )
@@ -103,7 +102,7 @@ export default function Navbar() {
         onClick={handleMobileClose}
         className="block px-4 py-3 text-purple-300 font-bold text-base border-l-2 border-purple-500/30 hover:border-purple-500 hover:bg-purple-500/10 transition-all"
       >
-        Perfil
+        PERFIL
       </Link>
       <button
         onClick={() => { handleMobileClose(); signOut({ callbackUrl: '/' }) }}
@@ -126,7 +125,7 @@ export default function Navbar() {
         onClick={handleMobileClose}
         className="block px-4 py-3 rounded bg-purple-600 text-white font-bold text-base my-2 hover:bg-purple-500 transition-all"
       >
-        Crear cuenta
+        CREAR CUENTA
       </Link>
     </>
   )
@@ -135,7 +134,7 @@ export default function Navbar() {
     <>
       {/* NAVBAR */}
       <motion.header 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 h-16 z-50 transition-all duration-300 ${
           scrolled 
             ? 'bg-black/90 backdrop-blur-xl border-b border-purple-500/30 shadow-lg shadow-purple-900/20' 
             : 'bg-black/50 backdrop-blur-sm border-b border-white/5'
@@ -144,8 +143,8 @@ export default function Navbar() {
         animate={prefersReducedMotion ? {} : { y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="flex items-center justify-between py-3 md:py-4">
+        <div className="container mx-auto px-4 lg:px-6 h-full">
+          <div className="flex items-center justify-between h-full">
             
             {/* LOGO */}
             <Link href="/" className="flex items-center gap-2 md:gap-3 group">
