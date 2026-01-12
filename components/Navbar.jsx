@@ -75,7 +75,7 @@ export default function Navbar() {
         onClick={() => signOut({ callbackUrl: '/' })}
         className="group relative px-3 lg:px-4 py-2 text-xs lg:text-sm font-bold tracking-wider text-white/70 hover:text-red-400 transition-colors"
       >
-        Cerrar sesión
+        CERRAR SESIÓN
       </button>
     </>
   ) : (
@@ -109,7 +109,7 @@ export default function Navbar() {
         onClick={() => { handleMobileClose(); signOut({ callbackUrl: '/' }) }}
         className="block w-full text-left px-4 py-3 text-red-400 font-bold text-base border-l-2 border-red-400/40 hover:border-red-500 hover:bg-red-500/10 transition-all"
       >
-        Cerrar sesión
+        CERRAR SESIÓN
       </button>
     </>
   ) : (
