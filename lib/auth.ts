@@ -2,7 +2,7 @@
 import NextAuth from 'next-auth'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import Credentials from 'next-auth/providers/credentials'
-// import Google from 'next-auth/providers/google'  // 👈 lo dejamos comentado por ahora
+import Google from 'next-auth/providers/google'
 import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
 
@@ -40,7 +40,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (intent === 'register') {
           const existing = await prisma.user.findUnique({ where: { email } })
           if (existing) {
-            // Este mensaje llega a res.error y tu frontend muestra "Ese correo ya está registrado."
             throw new Error('EMAIL_TAKEN')
           }
 
@@ -78,11 +77,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
 
-    // Google desactivado temporalmente para evitar errores de PKCE/InvalidCheck
-    // Google({
-    //   clientId: process.env.GOOGLE_CLIENT_ID!,
-    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    // }),
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
+    }),
   ],
 
   callbacks: {
