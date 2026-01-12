@@ -2,49 +2,51 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { signIn } from 'next-auth/react'
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
+import Link from 'next/link'
 
-export default function RegisterPage() {
+export default function ForgotPasswordPage() {
   const router = useRouter()
   const prefersReducedMotion = useReducedMotion()
   const [isPending, startTransition] = useTransition()
 
-  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-
-    if (password !== confirm) {
-      setError('Las contraseñas no coinciden.')
-      return
-    }
+    setSuccess('')
 
     startTransition(async () => {
-      const res = await signIn('credentials', {
-        redirect: false,
-        intent: 'register',
-        name,
-        email,
-        password,
-      })
+      try {
+        const res = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        })
 
-      if (res?.error === 'EMAIL_TAKEN') {
-        setError('Ese correo ya está registrado.')
-        return
+        const data = await res.json()
+
+        if (!res.ok) {
+          setError(
+            data.message ||
+              'Ocurrió un error al procesar tu solicitud. Intenta nuevamente.'
+          )
+          return
+        }
+
+        setSuccess(
+          data.message ||
+            'Si el correo existe en ZORU, te enviaremos un enlace para restablecer tu contraseña.'
+        )
+      } catch (err) {
+        console.error(err)
+        setError('Ocurrió un error al procesar tu solicitud. Intenta nuevamente.')
       }
-
-      if (res?.error) {
-        setError('No se pudo crear la cuenta. Inténtalo de nuevo.')
-        return
-      }
-
-      router.push('/')
     })
   }
 
@@ -74,10 +76,10 @@ export default function RegisterPage() {
 
       {/* Número decorativo */}
       <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[160px] sm:text-[210px] md:text-[260px] font-black text-purple-500/5 pointer-events-none select-none leading-none"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[180px] sm:text-[220px] md:text-[260px] font-black text-purple-500/5 pointer-events-none select-none leading-none"
         aria-hidden="true"
       >
-        999
+        000
       </div>
 
       {/* Card principal */}
@@ -87,7 +89,7 @@ export default function RegisterPage() {
         animate={prefersReducedMotion ? {} : { opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.45, ease: 'easeOut' }}
       >
-        {/* Badge estilo manifesto */}
+        {/* Badge tipo about */}
         <motion.div
           className="inline-flex items-center gap-3 px-5 py-2 bg-purple-600/20 border-2 border-purple-500/60 text-purple-300 text-[10px] sm:text-xs font-black tracking-[0.3em] mb-5"
           initial={prefersReducedMotion ? false : { opacity: 0, y: -20 }}
@@ -103,21 +105,21 @@ export default function RegisterPage() {
             }
             transition={{ duration: 1.8, repeat: Infinity }}
           />
-          JOIN • ZORU
+          SECURITY • ZORU
         </motion.div>
 
-        {/* Título manifesto */}
+        {/* Título estilo manifesto */}
         <div className="mb-4">
           <h1 className="text-3xl sm:text-4xl font-black leading-tight tracking-tight">
-            <span className="block text-white">CREA TU</span>
+            <span className="block text-white">RECUPERA TU</span>
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 -mt-1">
-              IDENTIDAD
+              ACCESO
             </span>
           </h1>
         </div>
 
         <p className="text-xs sm:text-sm text-white/60 font-mono mb-6">
-          Únete a ZORU y desbloquea acceso a drops, raffles y experiencias exclusivas.
+          Ingresa el correo con el que creaste tu cuenta ZORU y te enviaremos un enlace para restablecer tu contraseña.
         </p>
 
         <AnimatePresence>
@@ -132,25 +134,22 @@ export default function RegisterPage() {
               {error}
             </motion.div>
           )}
+
+          {success && (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="mb-4 rounded-lg border border-emerald-500/80 bg-emerald-950/40 px-3 py-2 text-xs sm:text-sm text-emerald-200 font-mono"
+            >
+              {success}
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="block text-[11px] sm:text-xs font-mono tracking-[0.25em] text-white/60 uppercase">
-              NOMBRE
-            </label>
-            <input
-              type="text"
-              required
-              autoComplete="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl bg-zinc-950 border border-white/15 px-3.5 py-2.5 text-sm outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/70 transition-colors placeholder:text-zinc-500 font-mono"
-              placeholder="TU NOMBRE"
-            />
-          </div>
-
           <div className="space-y-1.5">
             <label className="block text-[11px] sm:text-xs font-mono tracking-[0.25em] text-white/60 uppercase">
               CORREO
@@ -166,77 +165,24 @@ export default function RegisterPage() {
             />
           </div>
 
-          <div className="space-y-1.5">
-            <label className="block text-[11px] sm:text-xs font-mono tracking-[0.25em] text-white/60 uppercase">
-              CONTRASEÑA
-            </label>
-            <input
-              type="password"
-              required
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl bg-zinc-950 border border-white/15 px-3.5 py-2.5 text-sm outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/70 transition-colors placeholder:text-zinc-500 font-mono"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="block text-[11px] sm:text-xs font-mono tracking-[0.25em] text-white/60 uppercase">
-              CONFIRMAR CONTRASEÑA
-            </label>
-            <input
-              type="password"
-              required
-              autoComplete="new-password"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              className="w-full rounded-xl bg-zinc-950 border border-white/15 px-3.5 py-2.5 text-sm outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/70 transition-colors placeholder:text-zinc-500 font-mono"
-              placeholder="••••••••"
-            />
-          </div>
-
           <button
             type="submit"
             disabled={isPending}
             className="w-full mt-2 inline-flex items-center justify-center rounded-xl bg-purple-600 px-4 py-3 text-[11px] sm:text-xs md:text-sm font-black tracking-[0.25em] hover:bg-purple-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors uppercase"
           >
-            {isPending ? 'CREANDO CUENTA...' : 'CREAR CUENTA'}
+            {isPending ? 'ENVIANDO...' : 'ENVIAR ENLACE'}
           </button>
         </form>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-5">
-          <div className="h-px flex-1 bg-white/10" />
-          <span className="text-[10px] text-white/40 tracking-[0.2em] font-mono uppercase">
-            O CONTINÚA
-          </span>
-          <div className="h-px flex-1 bg-white/10" />
-        </div>
-
-        {/* Google */}
-        <button
-          type="button"
-          onClick={() => signIn('google', { callbackUrl: '/' })}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-white text-black px-4 py-2.5 text-xs sm:text-sm font-semibold hover:bg-zinc-200 transition-colors"
-        >
-          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-black text-white text-xs font-bold">
-            G
-          </span>
-          <span className="font-mono text-[11px] sm:text-xs tracking-[0.15em] uppercase">
-            Continuar con Google
-          </span>
-        </button>
-
-        {/* Link a login */}
+        {/* Volver al login */}
         <p className="mt-6 text-center text-[11px] sm:text-xs text-zinc-400 font-mono">
-          ¿Ya tienes cuenta?{' '}
-          <a
+          ¿Ya recordaste tu contraseña?{' '}
+          <Link
             href="/login"
             className="text-purple-400 hover:text-purple-300 underline underline-offset-4 font-bold"
           >
-            INICIA SESIÓN
-          </a>
+            VOLVER A INICIAR SESIÓN
+          </Link>
         </p>
       </motion.div>
     </div>

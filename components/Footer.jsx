@@ -235,7 +235,7 @@ export default function Footer() {
             © {new Date().getFullYear()} ZORU. Todos los derechos reservados. 
             <span className="hidden sm:inline mx-2 text-purple-500/50">|</span>
             <span className="block sm:inline mt-1 sm:mt-0">
-              Made with <span className="text-pink-500">♥</span> in Lima, Perú
+              Made with <span className="text-pink-500">♥</span> in Trujillo, Perú
             </span>
           </motion.div>
 
